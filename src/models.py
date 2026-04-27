@@ -123,12 +123,23 @@ class ExogenousShock(BaseModel):
 EventOutcome = Literal["ocorreu", "alterado", "anulado", "N/A"]
 
 
+class CausalLink(BaseModel):
+    source: str = Field(
+        description="Origem da relação causal: nome do evento/choque OU 'dimensao.metrica'.",
+    )
+    target: str = Field(
+        description="Métrica afetada, sempre no formato 'dimensao.metrica'.",
+    )
+    direction: Literal["up", "down"]
+
+
 class TurnResponse(BaseModel):
     narrative: str = Field(description="80-200 palavras descrevendo o que aconteceu neste semestre.")
     key_developments: list[str] = Field(min_length=2, max_length=4)
     event_outcome: EventOutcome
     event_outcome_explanation: Optional[str] = None
     deltas: dict[str, float] = Field(default_factory=dict)
+    causal_links: list[CausalLink] = Field(default_factory=list)
     confidence: Literal["low", "medium", "high"]
 
 

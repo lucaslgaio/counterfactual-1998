@@ -58,8 +58,21 @@ ela passa a 52. Use `0` ou omita a chave para métricas que não mudaram.
 
 9. **Idioma da narrativa**: Português brasileiro, tom de cronista histórico.
 
-10. **Você responde via tool use** chamando `advance_turn` com os campos \
-estruturados. Não escreva nada fora da chamada da tool."""
+10. **Conexões causais (`causal_links`)**: além dos deltas, declare 3 a 8 \
+relações causais que justifiquem o que mudou neste turno. Cada link tem:
+   - `source`: nome curto do evento, choque, ou métrica que originou o efeito \
+(ex: `crise_russa`, `projeto_athena`, `ai_capability.frontier_capability`).
+   - `target`: métrica afetada, sempre no formato `dimensao.metrica` \
+(ex: `financial_markets.systemic_risk`).
+   - `direction`: `up` ou `down`.
+   Exemplos:
+   - `{source: "crise_russa", target: "financial_markets.systemic_risk", direction: "up"}`
+   - `{source: "financial_markets.systemic_risk", target: "information_ecosystem.media_trust", direction: "down"}`
+   Cubra as principais cadeias causais. Não precisa cobrir 100% dos deltas, \
+mas inclua os mais relevantes.
+
+11. **Você responde via function call** chamando `advance_turn` com os campos \
+estruturados. Não escreva nada fora da chamada da função."""
 
 
 def _ai_capability_summary(state: State) -> str:

@@ -4,12 +4,14 @@ Uso:
     python -m src.smoke_test                       # 1 turno
     python -m src.smoke_test --turns 4             # 4 turnos com pause/input entre eles
     python -m src.smoke_test --turns 4 --auto      # 4 turnos sem pause/input
+    python -m src.smoke_test --turns 4 --manual    # mostra glossário das 24 métricas antes
     python -m src.smoke_test --turns 4 --seed 42   # reprodutibilidade
 """
 from __future__ import annotations
 
 import argparse
 import json
+from collections import defaultdict
 from pathlib import Path
 from typing import Optional
 
@@ -21,6 +23,7 @@ from rich.table import Table
 from rich.text import Text
 
 from src.config import SimulationConfig
+from src.glossary import METRICS, METRICS_LIST, metrics_by_cluster
 from src.llm import get_client, simulate_turn
 from src.models import (
     ExogenousShock,
@@ -31,22 +34,10 @@ from src.models import (
     apply_deltas,
 )
 from src.shocks import maybe_generate_shock
+from src.viz import delta_color, magnitude_arrow, render_causal_tree, sparkline
 
 
 DATA_DIR = Path(__file__).parent.parent / "data"
-
-# Métricas onde "subir" significa piora — pra colorir deltas contextualmente.
-BAD_WHEN_UP = {
-    "systemic_risk",
-    "automation_exposure",
-    "global_gini",
-    "top1pct_share",
-    "active_conflicts",
-    "disinformation_level",
-    "co2_gt_year",
-    "cost_index",
-    "bigtech_concentration",
-}
 
 SEVERITY_COLOR = {
     "low": "white",
@@ -72,13 +63,64 @@ def load_events() -> dict:
     return {e["date"]: HistoricalEvent(**e) for e in raw}
 
 
+def state_metric_value(state: State, metric_key: str) -> float:
+    dim, metric = metric_key.split(".", 1)
+    return float(getattr(getattr(state, dim), metric))
+
+
 # =============================================================================
 # Componentes de UI
 # =============================================================================
 
 
-def show_intro(console: Console, config: SimulationConfig, num_turns: int) -> None:
+def show_manual(console: Console) -> None:
+    """Mostra glossário das 24 métricas, agrupadas por cluster."""
     console.clear()
+    console.print()
+    console.print(Align.center(Text("MANUAL DAS 24 MÉTRICAS", style="bold cyan")))
+    console.print(Align.center(Text("como ler o estado do mundo", style="dim italic")))
+    console.print()
+
+    for cluster, metrics_list in metrics_by_cluster().items():
+        body = Table(show_header=False, box=None, padding=(0, 1), show_edge=False)
+        body.add_column(style="bold cyan", width=28, no_wrap=False)
+        body.add_column(style="white")
+
+        for m in metrics_list:
+            anchors = "\n".join(
+                f"  [yellow]{val:g}[/yellow] [dim]·[/dim] {meaning}"
+                for val, meaning in m.anchors
+            )
+            content = (
+                f"[dim]{m.description}[/dim]\n"
+                f"[dim]faixa: {m.range_label}[/dim]\n"
+                f"{anchors}"
+            )
+            body.add_row(m.short_label, content)
+
+        console.print(Panel(
+            body,
+            title=f"[bold]{cluster}[/bold]",
+            border_style="cyan",
+            padding=(0, 1),
+        ))
+
+    console.print()
+    try:
+        console.input("[dim]  Pressione Enter para iniciar a simulação...[/dim] ")
+    except EOFError:
+        pass
+    console.clear()
+
+
+def show_intro(
+    console: Console,
+    config: SimulationConfig,
+    num_turns: int,
+    showed_manual: bool,
+) -> None:
+    if not showed_manual:
+        console.clear()
     console.print()
     console.print()
 
@@ -108,6 +150,14 @@ def show_intro(console: Console, config: SimulationConfig, num_turns: int) -> No
         padding=(1, 4),
         width=min(console.width - 4, 90),
     ))
+
+    if not showed_manual:
+        console.print()
+        console.print(Align.center(Text(
+            "dica: rode com --manual pra ver o glossário das 24 métricas",
+            style="dim italic",
+        )))
+
     console.print()
 
     cfg_grid = Table.grid(padding=(0, 2))
@@ -129,8 +179,8 @@ def show_intro(console: Console, config: SimulationConfig, num_turns: int) -> No
         padding=(0, 2),
         width=min(console.width - 4, 90),
     ))
-    console.print()
 
+    console.print()
     try:
         console.input("  [dim]Pressione Enter para iniciar a simulação...[/dim] ")
     except EOFError:
@@ -190,6 +240,7 @@ def show_turn_header(
 
 
 def show_response(console: Console, response: TurnResponse, state: State) -> None:
+    """Narrativa, key developments, event outcome, deltas (com unidade) e árvore causal."""
     console.print()
     console.print(Panel(
         response.narrative,
@@ -224,25 +275,39 @@ def show_response(console: Console, response: TurnResponse, state: State) -> Non
             padding=(0, 1),
             title_justify="left",
         )
-        deltas_table.add_column("métrica", style="dim")
-        deltas_table.add_column("Δ", justify="right")
+        deltas_table.add_column("métrica", style="dim", no_wrap=True)
+        deltas_table.add_column("Δ", justify="right", no_wrap=True)
+        deltas_table.add_column("magnitude", no_wrap=True)
+        deltas_table.add_column("descrição", style="white")
 
         for k, v in sorted(response.deltas.items(), key=lambda kv: -abs(kv[1])):
-            metric_name = k.split(".")[-1]
-            sign = "+" if v >= 0 else ""
-            if metric_name in BAD_WHEN_UP:
-                color = "red" if v >= 0 else "green"
-            else:
-                color = "green" if v >= 0 else "red"
-            deltas_table.add_row(k, f"[{color}]{sign}{v:.2f}[/{color}]")
+            color = delta_color(k, v)
+            info = METRICS.get(k)
+            delta_str = info.format_delta(v) if info else f"{v:+.2f}"
+            label = info.short_label if info else k.split(".")[-1]
+            arrow = magnitude_arrow(v)
+            deltas_table.add_row(
+                label,
+                f"[{color}]{delta_str}[/{color}]",
+                f"[{color}]{arrow}[/{color}]",
+                f"[dim]{k}[/dim]",
+            )
         console.print(deltas_table)
+        console.print()
+
+    if response.causal_links:
+        console.print(render_causal_tree(response.causal_links))
         console.print()
 
     console.print(f"[dim]confiança do motor: {response.confidence}[/dim]")
 
 
 def show_outro(
-    console: Console, initial_state: State, final_state: State, num_turns: int
+    console: Console,
+    initial_state: State,
+    final_state: State,
+    metric_history: dict[str, list[float]],
+    num_turns: int,
 ) -> None:
     console.print()
     console.print()
@@ -252,42 +317,60 @@ def show_outro(
     )
     console.print()
 
-    init = initial_state.model_dump(exclude={"turn", "config"})
-    final = final_state.model_dump(exclude={"turn", "config"})
-
+    # Calcula deltas acumulados
     rows = []
-    for dim in init:
-        for metric, init_val in init[dim].items():
-            final_val = final[dim][metric]
-            delta = final_val - init_val
-            pct = (delta / init_val * 100) if init_val else 0.0
-            rows.append((f"{dim}.{metric}", init_val, final_val, delta, pct))
+    for key, info in METRICS.items():
+        before = state_metric_value(initial_state, key)
+        after = state_metric_value(final_state, key)
+        delta = after - before
+        pct = (delta / before * 100) if before else 0.0
+        rows.append((key, info, before, after, delta, pct))
 
-    rows.sort(key=lambda r: -abs(r[4]))
+    # Ordena por |Δ%|
+    rows.sort(key=lambda r: -abs(r[5]))
 
-    table = Table(title="maiores mudanças do início ao fim")
-    table.add_column("métrica", style="cyan")
-    table.add_column("inicial", justify="right", style="dim")
-    table.add_column("final", justify="right", style="bold")
-    table.add_column("Δ", justify="right")
-    table.add_column("Δ%", justify="right")
+    # ── Top mudanças com prosa ─────────────────────────────────────────────
+    console.print("[bold]o que mais mudou[/bold]\n")
+    for key, info, before, after, delta, pct in rows[:8]:
+        if abs(delta) < 0.01:
+            continue
+        color = delta_color(key, delta)
+        arrow = magnitude_arrow(delta)
+        sign = "+" if pct >= 0 else ""
+        prose = info.interpret(before, after)
+        console.print(f"  [{color}]{arrow}[/{color}]  {prose}  [dim]({sign}{pct:.1f}%)[/dim]")
+    console.print()
 
-    for k, init_val, final_val, delta, pct in rows[:10]:
-        metric_name = k.split(".")[-1]
-        sign = "+" if delta >= 0 else ""
-        if metric_name in BAD_WHEN_UP:
-            color = "red" if delta >= 0 else "green"
-        else:
-            color = "green" if delta >= 0 else "red"
-        table.add_row(
-            k,
-            f"{init_val:.2f}",
-            f"{final_val:.2f}",
-            f"[{color}]{sign}{delta:.2f}[/{color}]",
-            f"[{color}]{sign}{pct:.1f}%[/{color}]",
+    # ── Sparklines por cluster ─────────────────────────────────────────────
+    console.print("[bold]trajetória das métricas[/bold]\n")
+    for cluster, metrics_list in metrics_by_cluster().items():
+        cluster_table = Table(
+            box=None, show_header=False, padding=(0, 1), title_justify="left"
         )
+        cluster_table.add_column(style="dim", width=28)
+        cluster_table.add_column(no_wrap=True)
+        cluster_table.add_column(justify="right", style="bold")
 
-    console.print(table)
+        for m in metrics_list:
+            history = metric_history.get(m.key, [])
+            if not history:
+                continue
+            spark = sparkline(history)
+            initial = history[0]
+            final = history[-1]
+            color = delta_color(m.key, final - initial)
+            cluster_table.add_row(
+                m.short_label,
+                f"[{color}]{spark}[/{color}]",
+                f"{initial:.2f} → {final:.2f}",
+            )
+
+        console.print(Panel(
+            cluster_table,
+            title=f"[cyan]{cluster}[/cyan]",
+            border_style="dim",
+            padding=(0, 1),
+        ))
     console.print()
     console.print(f"[dim]turno final: {final_state.turn}[/dim]")
     console.print()
@@ -298,7 +381,7 @@ def show_outro(
 # =============================================================================
 
 
-def run(num_turns: int, auto: bool, seed: Optional[int]) -> None:
+def run(num_turns: int, auto: bool, seed: Optional[int], show_manual_flag: bool) -> None:
     load_dotenv()
     console = Console()
 
@@ -307,13 +390,20 @@ def run(num_turns: int, auto: bool, seed: Optional[int]) -> None:
         config_kwargs["seed"] = seed
     config = SimulationConfig(**config_kwargs)
 
-    show_intro(console, config, num_turns)
+    if show_manual_flag:
+        show_manual(console)
+    show_intro(console, config, num_turns, showed_manual=show_manual_flag)
 
     state = load_initial_state(config)
     initial_state = state
     events = load_events()
     narrative_history: list[str] = []
     client = get_client()
+
+    # Histórico de cada métrica pra sparklines
+    metric_history: dict[str, list[float]] = defaultdict(list)
+    for key in METRICS:
+        metric_history[key].append(state_metric_value(state, key))
 
     user_input_for_next: Optional[str] = None
 
@@ -344,6 +434,9 @@ def run(num_turns: int, auto: bool, seed: Optional[int]) -> None:
         narrative_history.append(response.narrative)
         user_input_for_next = None
 
+        for key in METRICS:
+            metric_history[key].append(state_metric_value(state, key))
+
         if i < num_turns - 1 and not auto:
             console.print()
             try:
@@ -354,7 +447,7 @@ def run(num_turns: int, auto: bool, seed: Optional[int]) -> None:
                 raw = ""
             user_input_for_next = raw.strip() or None
 
-    show_outro(console, initial_state, state, num_turns)
+    show_outro(console, initial_state, state, metric_history, num_turns)
 
 
 def main() -> None:
@@ -371,9 +464,19 @@ def main() -> None:
         default=None,
         help="Seed pra reprodutibilidade (default: aleatória)",
     )
+    parser.add_argument(
+        "--manual",
+        action="store_true",
+        help="Mostra glossário das 24 métricas antes da simulação",
+    )
     args = parser.parse_args()
 
-    run(num_turns=args.turns, auto=args.auto, seed=args.seed)
+    run(
+        num_turns=args.turns,
+        auto=args.auto,
+        seed=args.seed,
+        show_manual_flag=args.manual,
+    )
 
 
 if __name__ == "__main__":

@@ -44,8 +44,8 @@ class SimulationConfig(BaseModel):
     )
 
     model: str = Field(
-        default="claude-sonnet-4-6",
-        description="ID do modelo da Anthropic.",
+        default="gemini-2.0-flash",
+        description="ID do modelo do Google Gemini.",
     )
 
     max_tokens: int = Field(

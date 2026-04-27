@@ -1,11 +1,11 @@
-"""Cliente Anthropic com tool use forçado para garantir saída estruturada."""
+"""Cliente Google Gemini com function calling forçado para garantir saída estruturada."""
 from __future__ import annotations
 
 import os
-from typing import Optional
+from typing import Any, Optional
 
-from anthropic import Anthropic
-from anthropic.types import ToolUseBlock
+from google import genai
+from google.genai import types
 
 from src.config import SimulationConfig
 from src.models import (
@@ -18,11 +18,11 @@ from src.models import (
 from src.prompts import SYSTEM_PROMPT, build_user_message
 
 
-def _build_tool_schema() -> dict:
-    """Schema JSON da tool `advance_turn`. Lista todas as 24 métricas explicitamente."""
+def _build_function_declaration() -> dict:
+    """Schema da função `advance_turn` em formato Gemini (JSON Schema com tipos uppercase)."""
     delta_properties = {
         key: {
-            "type": "number",
+            "type": "NUMBER",
             "description": f"Delta aditivo (positivo ou negativo) aplicado a {key}.",
         }
         for key in list_metric_keys()
@@ -31,43 +31,71 @@ def _build_tool_schema() -> dict:
     return {
         "name": "advance_turn",
         "description": (
-            "Avança a simulação em um semestre. Retorna narrativa, deltas aplicados ao estado "
-            "e metadados sobre o evento histórico (se houver)."
+            "Avança a simulação em um semestre. Retorna narrativa, deltas aplicados, "
+            "links causais que explicam os deltas, e metadados sobre o evento histórico."
         ),
-        "input_schema": {
-            "type": "object",
+        "parameters": {
+            "type": "OBJECT",
             "properties": {
                 "narrative": {
-                    "type": "string",
+                    "type": "STRING",
                     "description": "Narrativa em português brasileiro, 80-200 palavras.",
                 },
                 "key_developments": {
-                    "type": "array",
-                    "items": {"type": "string"},
-                    "minItems": 2,
-                    "maxItems": 4,
+                    "type": "ARRAY",
+                    "items": {"type": "STRING"},
                     "description": "2 a 4 highlights curtos do semestre.",
                 },
                 "event_outcome": {
-                    "type": "string",
+                    "type": "STRING",
                     "enum": ["ocorreu", "alterado", "anulado", "N/A"],
-                    "description": "Como o evento histórico real evoluiu no contrafactual. N/A se não havia evento.",
+                    "description": "Como o evento histórico real evoluiu. N/A se não havia evento.",
                 },
                 "event_outcome_explanation": {
-                    "type": ["string", "null"],
+                    "type": "STRING",
+                    "nullable": True,
                     "description": "Justificativa quando o outcome não foi 'ocorreu' ou 'N/A'.",
                 },
                 "deltas": {
-                    "type": "object",
+                    "type": "OBJECT",
                     "properties": delta_properties,
-                    "additionalProperties": False,
                     "description": (
                         "Deltas aditivos. Inclua apenas métricas que mudaram. "
                         "Métricas omitidas permanecem inalteradas."
                     ),
                 },
+                "causal_links": {
+                    "type": "ARRAY",
+                    "description": (
+                        "3 a 8 conexões causais que justificam os deltas deste turno. "
+                        "Cada link aponta de uma origem (evento, choque ou métrica) "
+                        "para uma métrica afetada."
+                    ),
+                    "items": {
+                        "type": "OBJECT",
+                        "properties": {
+                            "source": {
+                                "type": "STRING",
+                                "description": (
+                                    "Origem: nome curto do evento/choque, ou 'dimensao.metrica'. "
+                                    "Ex: 'crise_russa', 'projeto_athena', "
+                                    "'ai_capability.frontier_capability'."
+                                ),
+                            },
+                            "target": {
+                                "type": "STRING",
+                                "description": "Métrica afetada, formato 'dimensao.metrica'.",
+                            },
+                            "direction": {
+                                "type": "STRING",
+                                "enum": ["up", "down"],
+                            },
+                        },
+                        "required": ["source", "target", "direction"],
+                    },
+                },
                 "confidence": {
-                    "type": "string",
+                    "type": "STRING",
                     "enum": ["low", "medium", "high"],
                     "description": "Confiança do motor neste turno.",
                 },
@@ -77,32 +105,57 @@ def _build_tool_schema() -> dict:
                 "key_developments",
                 "event_outcome",
                 "deltas",
+                "causal_links",
                 "confidence",
             ],
         },
     }
 
 
-def get_client() -> Anthropic:
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
+# Conteúdo histórico da simulação (guerras, crises, etc) é tratado como
+# legítimo — relaxamos os filtros do Gemini sem desligá-los completamente.
+_SAFETY_SETTINGS = [
+    {"category": cat, "threshold": "BLOCK_ONLY_HIGH"}
+    for cat in (
+        "HARM_CATEGORY_HARASSMENT",
+        "HARM_CATEGORY_HATE_SPEECH",
+        "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+        "HARM_CATEGORY_DANGEROUS_CONTENT",
+    )
+]
+
+
+def get_client() -> genai.Client:
+    api_key = os.environ.get("GOOGLE_API_KEY")
     if not api_key:
         raise RuntimeError(
-            "ANTHROPIC_API_KEY não está definida no ambiente. "
-            "Copie .env.example para .env e preencha."
+            "GOOGLE_API_KEY não está definida no ambiente. "
+            "Pegue uma key gratuita em https://aistudio.google.com e cole no .env."
         )
-    return Anthropic(api_key=api_key)
+    return genai.Client(api_key=api_key)
+
+
+def _to_plain_dict(obj: Any) -> Any:
+    """Converte recursivamente estruturas dict-like (proto.MapComposite) em dicts/listas puros."""
+    if isinstance(obj, dict):
+        return {k: _to_plain_dict(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [_to_plain_dict(v) for v in obj]
+    if hasattr(obj, "items") and callable(obj.items):
+        return {k: _to_plain_dict(v) for k, v in obj.items()}
+    return obj
 
 
 def simulate_turn(
-    client: Anthropic,
+    client: genai.Client,
     state: State,
     event: Optional[HistoricalEvent],
     shock: Optional[ExogenousShock],
     user_input: Optional[str],
-    narrative_history: list[str],
+    narrative_history: list,
     config: SimulationConfig,
 ) -> TurnResponse:
-    """Executa um turno: chama a API com tool use forçado, retorna TurnResponse validada."""
+    """Executa um turno: chama o Gemini com function calling forçado, retorna TurnResponse validada."""
     user_message = build_user_message(
         state=state,
         event=event,
@@ -112,21 +165,43 @@ def simulate_turn(
         config=config,
     )
 
-    response = client.messages.create(
+    tool = types.Tool(function_declarations=[_build_function_declaration()])
+
+    response = client.models.generate_content(
         model=config.model,
-        max_tokens=config.max_tokens,
-        temperature=config.temperature,
-        system=SYSTEM_PROMPT,
-        tools=[_build_tool_schema()],
-        tool_choice={"type": "tool", "name": "advance_turn"},
-        messages=[{"role": "user", "content": user_message}],
+        contents=user_message,
+        config=types.GenerateContentConfig(
+            system_instruction=SYSTEM_PROMPT,
+            temperature=config.temperature,
+            max_output_tokens=config.max_tokens,
+            tools=[tool],
+            tool_config=types.ToolConfig(
+                function_calling_config=types.FunctionCallingConfig(
+                    mode="ANY",
+                    allowed_function_names=["advance_turn"],
+                )
+            ),
+            safety_settings=_SAFETY_SETTINGS,
+        ),
     )
 
-    tool_use_blocks = [b for b in response.content if isinstance(b, ToolUseBlock)]
-    if not tool_use_blocks:
+    # Extrai a primeira function_call do candidato
+    function_call = None
+    for candidate in response.candidates or []:
+        if not candidate.content or not candidate.content.parts:
+            continue
+        for part in candidate.content.parts:
+            if part.function_call is not None:
+                function_call = part.function_call
+                break
+        if function_call:
+            break
+
+    if function_call is None:
         raise RuntimeError(
-            f"LLM não retornou tool_use. stop_reason={response.stop_reason}, "
-            f"content={response.content}"
+            f"Gemini não retornou function_call. "
+            f"finish_reason={response.candidates[0].finish_reason if response.candidates else 'n/a'}"
         )
 
-    return TurnResponse.model_validate(tool_use_blocks[0].input)
+    args = _to_plain_dict(function_call.args)
+    return TurnResponse.model_validate(args)
