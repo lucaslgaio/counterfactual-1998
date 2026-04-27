@@ -1,0 +1,18 @@
+[
+  {"date": "1998-S2", "name": "Crise financeira russa / default", "severity": "high", "domain": "financial"},
+  {"date": "1999-S2", "name": "Y2K bug + transição milênio", "severity": "low", "domain": "tech"},
+  {"date": "2000-S1", "name": "Pico Nasdaq (5048)", "severity": "high", "domain": "financial"},
+  {"date": "2001-S1", "name": "Estouro da bolha .com", "severity": "critical", "domain": "financial"},
+  {"date": "2001-S2", "name": "Atentados de 11 de Setembro", "severity": "critical", "domain": "geopolitics"},
+  {"date": "2003-S1", "name": "Invasão do Iraque", "severity": "high", "domain": "geopolitics"},
+  {"date": "2007-S2", "name": "Início da crise subprime", "severity": "high", "domain": "financial"},
+  {"date": "2008-S2", "name": "Falência Lehman Brothers", "severity": "critical", "domain": "financial"},
+  {"date": "2010-S2", "name": "Início da Primavera Árabe", "severity": "high", "domain": "geopolitics"},
+  {"date": "2011-S1", "name": "Fukushima / tsunami Japão", "severity": "high", "domain": "energy"},
+  {"date": "2014-S1", "name": "Anexação da Crimeia pela Rússia", "severity": "high", "domain": "geopolitics"},
+  {"date": "2016-S1", "name": "Referendo Brexit", "severity": "high", "domain": "governance"},
+  {"date": "2016-S2", "name": "Eleição de Donald Trump", "severity": "high", "domain": "governance"},
+  {"date": "2020-S1", "name": "Pandemia COVID-19", "severity": "critical", "domain": "health"},
+  {"date": "2022-S1", "name": "Invasão russa da Ucrânia", "severity": "critical", "domain": "geopolitics"},
+  {"date": "2022-S2", "name": "Lançamento do ChatGPT (linha real)", "severity": "high", "domain": "tech"}
+]

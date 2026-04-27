@@ -1,0 +1,50 @@
+{
+  "ai_capability": {
+    "frontier_capability": 92,
+    "population_penetration": 5.0
+  },
+  "tech_industry": {
+    "bigtech_concentration": 22,
+    "tech_employment_share": 3.1
+  },
+  "financial_markets": {
+    "global_index": 100,
+    "systemic_risk": 35
+  },
+  "labor_market": {
+    "employment_rate": 62.8,
+    "automation_exposure": 8
+  },
+  "education": {
+    "mean_years_schooling": 7.4,
+    "cost_index": 100
+  },
+  "inequality": {
+    "global_gini": 0.69,
+    "top1pct_share": 19
+  },
+  "health": {
+    "life_expectancy": 67.0,
+    "diagnostic_accuracy": 2
+  },
+  "science_rd": {
+    "publications_index": 100,
+    "breakthroughs_per_year": 12
+  },
+  "geopolitics": {
+    "us_china_balance": 75,
+    "active_conflicts": 38
+  },
+  "governance": {
+    "democracy_index": 5.5,
+    "ai_regulation_maturity": 0
+  },
+  "information_ecosystem": {
+    "media_trust": 53,
+    "disinformation_level": 18
+  },
+  "energy_climate": {
+    "co2_gt_year": 24.4,
+    "renewable_share": 6
+  }
+}
