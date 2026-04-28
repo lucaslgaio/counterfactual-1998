@@ -44,27 +44,23 @@ def main() -> None:
         return
     print()
 
-    print("=== 3. Teste com gemini-2.0-flash (sem tool use) ===")
-    try:
-        r = client.models.generate_content(
-            model="gemini-2.0-flash",
-            contents="Diga olá em uma palavra.",
-        )
-        print(f"  OK: {r.text!r}")
-    except Exception as e:
-        print(f"  ERRO: {type(e).__name__}: {e}")
-    print()
-
-    print("=== 4. Teste com gemini-1.5-flash (fallback) ===")
-    try:
-        r = client.models.generate_content(
-            model="gemini-1.5-flash",
-            contents="Diga olá em uma palavra.",
-        )
-        print(f"  OK: {r.text!r}")
-    except Exception as e:
-        print(f"  ERRO: {type(e).__name__}: {e}")
-    print()
+    candidates = [
+        "gemini-2.5-flash",
+        "gemini-2.5-pro",
+        "gemini-2.0-flash-lite",
+        "gemini-2.0-flash",
+    ]
+    for i, model_id in enumerate(candidates, start=3):
+        print(f"=== {i}. Teste com {model_id} (sem tool use) ===")
+        try:
+            r = client.models.generate_content(
+                model=model_id,
+                contents="Diga olá em uma palavra.",
+            )
+            print(f"  OK: {r.text!r}")
+        except Exception as e:
+            print(f"  ERRO: {type(e).__name__}: {e}")
+        print()
 
     print("Diagnóstico completo.")
 

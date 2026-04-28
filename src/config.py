@@ -44,7 +44,7 @@ class SimulationConfig(BaseModel):
     )
 
     model: str = Field(
-        default="gemini-2.0-flash",
+        default="gemini-2.5-flash",
         description="ID do modelo do Google Gemini.",
     )
 
