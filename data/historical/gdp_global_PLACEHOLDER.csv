@@ -1,0 +1,2 @@
+turn_label,turn_index,value,metric_key,block,confidence,source_url,notes
+PLACEHOLDER,-1,,_gdp_global,,0.0,https://databank.worldbank.org/,World Bank GDP — used for weight overrides only.
