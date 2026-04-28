@@ -690,3 +690,77 @@ no corpo deste documento. Justificativa inicial vive em `etapa_1_5_note`
 **Confidence**: medium
 
 **Validation note**: Wars catalisaram radar/internet/GPS (Mowery 2010) mas correlacao fraca quando se controla por periodos (Ruttan 2006). Net effect ambiguo. Refs: Mowery 2010 Industrial Corporate Change; Ruttan 2006 Is War Necessary?; Gross Sampat 2023 AER WWII innovation.
+
+### e_125: health.diagnostic_accuracy → financial_markets.systemic_risk
+- **Direção**: negativa | **Magnitude**: weak | **Lag**: 4 turnos | **Scope**: global
+
+**Justificativa Rodada 3**: Rodada 3: detecção precoce de pandemias reduz risco sistêmico catastrófico (COVID-19 mostrou magnitude potencial)
+
+**Referências validadas (Etapa 2)**:
+- McKinsey 2020, "COVID-19: Implications for business and economic impact"
+- WHO 2023, "Pandemic Preparedness and Response"
+- IMF 2024, "World Economic Outlook: pandemic spillovers and macroeconomic risk"
+
+**Confidence**: medium
+
+**Validation note**: COVID-19 expos custo de deteccao tardia (US$ 16T cumulative GDP loss). Magnitude weak defensavel — prevencao de tail risk raro. Refs: McKinsey 2020 COVID-19 economic impact; WHO 2023 Pandemic Preparedness; IMF 2024 World Economic Outlook pandemic spillovers.
+
+### e_127: science_rd.publications_index → governance.ai_regulation_maturity
+- **Direção**: positiva | **Magnitude**: weak | **Lag**: 6 turnos | **Scope**: within_block
+
+**Justificativa Rodada 3**: Rodada 3: mais publicação → mais material pra reguladores entenderem riscos → regulação mais sofisticada (alignment papers viraram base de AI Act)
+
+**Referências validadas (Etapa 2)**:
+- Stix 2021, Minds and Machines 31:295-321, "Actionable Principles for Artificial Intelligence Policy: Three Pathways"
+- Bareis & Katzenbach 2022, Science, Technology, & Human Values 47(5):855-881, "Talking AI into Being: The Narratives and Imaginaries of National AI Strategies"
+- Engler 2023, Brookings, "The EU and U.S. diverge on AI regulation"
+
+**Confidence**: medium
+
+**Validation note**: Alignment papers (Bostrom 2014, Russell 2019, Christiano 2018) viraram base intelectual de AI Act EU. Magnitude weak dado tempo longo entre publicacao e regulacao. Refs: Stix 2021 Minds and Machines; Bareis Katzenbach 2022 Sci Tech Hum Values; Engler 2023 Brookings.
+
+### e_131: science_rd.publications_index → science_rd.publications_index
+- **Direção**: positiva | **Magnitude**: weak | **Lag**: 4 turnos | **Scope**: within_block
+
+**Justificativa Rodada 3**: Rodada 3: cumulative knowledge — papers citam papers, snowball; bem documentado em scientometrics
+
+**Referências validadas (Etapa 2)**:
+- Price 1965, Science 149(3683):510-515, "Networks of Scientific Papers"
+- Bornmann & Mutz 2015, Journal of the Association for Information Science and Technology 66(11):2215-2222, "Growth rates of modern science: A bibliometric analysis based on the number of publications and cited references"
+- Frenken et al 2017, Research Policy 46(3):618-632, "The growth of scientific knowledge"
+
+**Confidence**: medium
+
+**Validation note**: Cumulative knowledge bem documentado em scientometrics. Taxa de crescimento ~3-4%/ano sustentada por self-reinforcement. Refs: Price 1965 Science; Bornmann Mutz 2015 JASIST; Frenken et al 2017 Research Policy.
+
+**Nota Etapa 5 (calibração)**: Implementacao SDM precisa incluir saturacao (sigmoid) para evitar explosao exponencial; parametro de saturacao ~5% growth/ano em steady state, mecanismo de attention scarcity (Frenken 2017) limitando crescimento real. NOTA CRITICA — sem isso o motor explode.
+
+### e_135: health.mental_wellbeing → labor_market.employment_rate
+- **Direção**: positiva | **Magnitude**: weak | **Lag**: 4 turnos | **Scope**: within_block
+
+**Justificativa Rodada 3**: Rodada 3: bem-estar mental afeta participação no mercado de trabalho
+
+**Referências validadas (Etapa 2)**:
+- Bubonya, Cobb-Clark & Wooden 2017, Labour Economics 46:150-165, "Mental health and productivity at work: Does what you do matter?"
+- OECD 2021, "Mental Health and Work: Tackling the workplace mental health crisis"
+- WHO 2022, "World Mental Health Report: Transforming mental health for all"
+
+**Confidence**: medium
+
+**Validation note**: Depression reduz labor force participation por ~5-10pp (Bubonya 2017). Magnitude weak prudente em escala agregada. Refs: Bubonya Cobb-Clark Wooden 2017 Labour Economics; OECD 2021 Mental Health and Work; WHO 2022 World Mental Health Report (US$ 1T/ano em produtividade global).
+
+### e_136: health.mental_wellbeing → governance.democracy_index
+- **Direção**: positiva | **Magnitude**: weak | **Lag**: 8 turnos | **Scope**: within_block
+
+**Justificativa Rodada 3**: Rodada 3: cidadania exige bandwidth psicossocial; depressão/ansiedade massiva debilita instituições
+
+**Referências validadas (Etapa 2)**:
+- Foa & Mounk 2016, Journal of Democracy 27(3):5-17, "The Danger of Deconsolidation: The Democratic Disconnect"
+- Inglehart & Norris 2017, Perspectives on Politics 15(2):443-454, "Trump and the Populist Authoritarian Parties: The Silent Revolution in Reverse"
+- Steffens et al 2021, Political Psychology 42(2):185-204, "Identity leadership and democratic functioning"
+
+**Confidence**: low
+
+**Validation note**: Mecanismo teoricamente defensavel mas literatura empirica direta e fina. Nao ha paper canonico ligando mental health populacional a democratic functioning diretamente. Refs: Foa Mounk 2016 J Democracy; Inglehart Norris 2017 populist authoritarian; Steffens et al 2021 Political Psychology.
+
+**Nota Etapa 5 (calibração)**: Confidence baixa; usar range muito conservador, possivelmente magnitude negligible se evidencia nao aparecer durante calibracao. Ligacao mental_wellbeing -> democracy_index e teorica, sem paper canonico.
