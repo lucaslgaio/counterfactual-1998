@@ -226,9 +226,64 @@ def test_validated_field_round_trips_when_true():
         id="e_x", source="a.b", target="c.d", direction="positive",
         magnitude="medium", lag_turns=2, scope="global",
         justification_ref="x", validated=True,
+        validation_confidence="high",
         validation_notes="Reviewed Lucas+Claude 2026-Q2; refs: Author 2020.",
     )
     assert edge.validated is True
     assert edge.validation_notes is not None
+    assert edge.validation_confidence == "high"
+    errors = validate_edge_fields([edge])
+    assert not errors
+
+
+def test_validation_confidence_accepts_high_medium_low():
+    """validation_confidence should accept high, medium, low or None."""
+    for level in ("high", "medium", "low"):
+        edge = CausalEdge(
+            id="e_x", source="a.b", target="c.d", direction="positive",
+            magnitude="medium", lag_turns=2, scope="global",
+            justification_ref="x", validated=True,
+            validation_confidence=level,
+            validation_notes="ok",
+        )
+        errors = validate_edge_fields([edge])
+        assert not errors, f"level={level} should be valid: {errors}"
+
+
+def test_validation_confidence_rejects_invalid_value():
+    """validation_confidence with garbage value should be flagged."""
+    edge = CausalEdge(
+        id="e_x", source="a.b", target="c.d", direction="positive",
+        magnitude="medium", lag_turns=2, scope="global",
+        justification_ref="x", validated=True,
+        validation_confidence="absolute",
+        validation_notes="ok",
+    )
+    errors = validate_edge_fields([edge])
+    assert any("invalid validation_confidence" in e for e in errors)
+
+
+def test_validated_true_requires_confidence():
+    """An edge with validated=true but null confidence should be flagged."""
+    edge = CausalEdge(
+        id="e_x", source="a.b", target="c.d", direction="positive",
+        magnitude="medium", lag_turns=2, scope="global",
+        justification_ref="x", validated=True,
+        validation_confidence=None,
+        validation_notes="missing confidence",
+    )
+    errors = validate_edge_fields([edge])
+    assert any("validated=true but validation_confidence is null" in e for e in errors)
+
+
+def test_validated_false_allows_null_confidence():
+    """An edge with validated=false and null confidence is the default and valid."""
+    edge = CausalEdge(
+        id="e_x", source="a.b", target="c.d", direction="positive",
+        magnitude="medium", lag_turns=2, scope="global",
+        justification_ref="x",
+    )
+    assert edge.validated is False
+    assert edge.validation_confidence is None
     errors = validate_edge_fields([edge])
     assert not errors

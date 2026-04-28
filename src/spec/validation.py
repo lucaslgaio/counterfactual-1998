@@ -171,5 +171,14 @@ def run_full_validation(spec_dir: Path = SPEC_DIR_DEFAULT) -> ValidationReport:
     report.stats["edges_validated_pct"] = (
         round(100.0 * validated_count / len(edges), 1) if edges else 0.0
     )
+    report.stats["edges_validated_high"] = sum(
+        1 for e in edges if e.validated and e.validation_confidence == "high"
+    )
+    report.stats["edges_validated_medium"] = sum(
+        1 for e in edges if e.validated and e.validation_confidence == "medium"
+    )
+    report.stats["edges_validated_low"] = sum(
+        1 for e in edges if e.validated and e.validation_confidence == "low"
+    )
 
     return report

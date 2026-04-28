@@ -22,6 +22,7 @@ VALID_MAGNITUDES = {"weak", "medium", "strong", "negligible"}
 VALID_DIRECTIONS = {"positive", "negative"}
 VALID_SCOPES = {"within_block", "spillover", "global", "matrix_targeted"}
 VALID_AGGREGATIONS = {"leader", "weighted_mean", "max", "sum"}
+VALID_CONFIDENCES = {"high", "medium", "low"}
 BLOCK_IDS = {"US", "EU", "CN", "RoW"}
 
 
@@ -40,6 +41,7 @@ class CausalEdge:
     aggregation: Optional[str] = None
     direction_contested: bool = False
     validated: bool = False
+    validation_confidence: Optional[str] = None
     validation_notes: Optional[str] = None
 
     @property
@@ -96,6 +98,7 @@ def load_dag(path: Path) -> List[CausalEdge]:
             aggregation=e.get("aggregation"),
             direction_contested=bool(e.get("direction_contested", False)),
             validated=bool(e.get("validated", False)),
+            validation_confidence=e.get("validation_confidence"),
             validation_notes=e.get("validation_notes"),
         ))
     return edges
@@ -119,6 +122,15 @@ def validate_edge_fields(edges: List[CausalEdge]) -> List[str]:
             errors.append(f"{e.id}: lag_turns must be >= 0, got {e.lag_turns}")
         if e.aggregation is not None and e.aggregation not in VALID_AGGREGATIONS:
             errors.append(f"{e.id}: invalid aggregation {e.aggregation!r}")
+        if e.validation_confidence is not None and e.validation_confidence not in VALID_CONFIDENCES:
+            errors.append(
+                f"{e.id}: invalid validation_confidence {e.validation_confidence!r} "
+                f"(must be one of {sorted(VALID_CONFIDENCES)})"
+            )
+        if e.validated and e.validation_confidence is None:
+            errors.append(
+                f"{e.id}: validated=true but validation_confidence is null"
+            )
     return errors
 
 

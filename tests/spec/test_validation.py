@@ -92,6 +92,21 @@ def test_full_validation_reports_validation_progress():
     assert 0.0 <= report.stats["edges_validated_pct"] <= 100.0
 
 
+def test_full_validation_reports_confidence_breakdown():
+    """Etapa 2: stats should expose breakdown by validation_confidence."""
+    report = run_full_validation(SPEC_DIR)
+    for key in ("edges_validated_high", "edges_validated_medium", "edges_validated_low"):
+        assert key in report.stats, f"missing stat key: {key}"
+        assert isinstance(report.stats[key], int)
+    # The three confidence buckets must sum to total validated edges.
+    total_by_conf = (
+        report.stats["edges_validated_high"]
+        + report.stats["edges_validated_medium"]
+        + report.stats["edges_validated_low"]
+    )
+    assert total_by_conf == report.stats["edges_validated"]
+
+
 def test_central_loops_detect_missing():
     """If a required edge is missing, the validator should flag it."""
     # Build a small fake DAG with only some of the required edges

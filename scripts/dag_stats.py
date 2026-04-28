@@ -59,10 +59,15 @@ def main() -> int:
     print()
 
     print("## Methodological review status (Etapa 2)")
-    validated = sum(1 for e in edges if e.validated)
+    validated_edges = [e for e in edges if e.validated]
+    validated = len(validated_edges)
     pct = round(100.0 * validated / len(edges), 1) if edges else 0.0
-    print(f"- validated: {validated}/{len(edges)} ({pct}%)")
-    print(f"- pending: {len(edges) - validated}")
+    print(f"- Validated edges: {validated}/{len(edges)} ({pct}%)")
+    high = sum(1 for e in validated_edges if e.validation_confidence == "high")
+    med = sum(1 for e in validated_edges if e.validation_confidence == "medium")
+    low = sum(1 for e in validated_edges if e.validation_confidence == "low")
+    print(f"- By confidence: high={high}, medium={med}, low={low}")
+    print(f"- Pending: {len(edges) - validated} (default DRAFT, fora do escopo Etapa 2)")
     print()
 
     print("## Lag distribution (turns)")
