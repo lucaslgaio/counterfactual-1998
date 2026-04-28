@@ -74,6 +74,15 @@ Maior capacidade torna a IA útil para tarefas mais cotidianas → adoção. For
 
 Penetração maior cria demanda por trabalhadores que treinam, mantêm, customizam e auditam IA — alguns dos quais entram na conta de "tech employment".
 
+**Referências validadas (Etapa 2)**:
+- BIS Working Paper 1325 2025, "AI productivity gains without displacement"
+- Johnston & Makridis 2025, SSRN, "AI complementarity in tech labor markets"
+- Brynjolfsson, Chandar & Chen 2025, NBER 33867, "Generative AI and the Decline of Junior Hiring"
+
+**Confidence**: medium
+
+**Validation note**: Literatura 2024-26: complementaridade dominante curto prazo (BIS 2025 +4% produtividade sem displacement) mas substitui juniors (-13% hiring, Brynjolfsson 2025). Net negligible no agregado. Refs: BIS WP 1325 2025; Johnston Makridis 2025 SSRN; Brynjolfsson Chandar Chen 2025 NBER 33867.
+
 ---
 
 ## Cluster: Economia → Sociedade
@@ -234,6 +243,17 @@ IA tutor democratiza acesso → custo cai para o aluno. Khan Academy + IA person
 - **Direção**: positiva | **Magnitude**: medium | **Lag**: 2 turnos | **Scope**: within_block
 
 IA aplicada à pesquisa científica acelera descoberta (AlphaFold como caso). Loop reforço com e_031.
+
+**Referências validadas (Etapa 2)**:
+- Jumper et al 2021, Nature 596:583-589, "Highly accurate protein structure prediction with AlphaFold"
+- Bianchini, Muller & Pelletier 2022, Research Policy 51(10):104604, "Artificial intelligence in science: An emerging general method of invention"
+- Cockburn, Henderson & Stern 2018, NBER, "The Impact of Artificial Intelligence on Innovation"
+
+**Confidence**: high
+
+**Validation note**: AlphaFold e exemplo canonico de magnitude strong. Heterogeneidade alta entre dominios — forte em structural biology/quimica, mais fraca em ciencias sociais. Refs: Jumper et al 2021 Nature; Bianchini Muller Pelletier 2022 Research Policy; Cockburn Henderson Stern 2018 NBER. NOTA Etapa 5: calibracao deve considerar variancia alta entre disciplinas.
+
+**Nota Etapa 5 (calibração)**: Calibracao deve considerar variancia alta entre disciplinas (structural biology/quimica vs ciencias sociais). AlphaFold-style breakthroughs concentrados em dominios computaveis.
 
 ### e_038: ai_capability.frontier_capability → science_rd.publications_index
 - **Direção**: positiva | **Magnitude**: medium | **Lag**: 4 turnos | **Scope**: global
