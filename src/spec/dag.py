@@ -18,9 +18,10 @@ from typing import List, Optional, Set
 
 import networkx as nx
 
-VALID_MAGNITUDES = {"weak", "medium", "strong"}
+VALID_MAGNITUDES = {"weak", "medium", "strong", "negligible"}
 VALID_DIRECTIONS = {"positive", "negative"}
-VALID_SCOPES = {"within_block", "spillover", "global"}
+VALID_SCOPES = {"within_block", "spillover", "global", "matrix_targeted"}
+VALID_AGGREGATIONS = {"leader", "weighted_mean", "max", "sum"}
 BLOCK_IDS = {"US", "EU", "CN", "RoW"}
 
 
@@ -36,6 +37,8 @@ class CausalEdge:
     justification_ref: str
     draft: bool = True
     is_self_loop: bool = False
+    aggregation: Optional[str] = None
+    direction_contested: bool = False
 
     @property
     def base_source(self) -> str:
@@ -88,6 +91,8 @@ def load_dag(path: Path) -> List[CausalEdge]:
             justification_ref=e["justification_ref"],
             draft=bool(e.get("draft", True)),
             is_self_loop=bool(e.get("is_self_loop", False)),
+            aggregation=e.get("aggregation"),
+            direction_contested=bool(e.get("direction_contested", False)),
         ))
     return edges
 
@@ -108,6 +113,60 @@ def validate_edge_fields(edges: List[CausalEdge]) -> List[str]:
             errors.append(f"{e.id}: invalid scope {e.scope!r}")
         if e.lag_turns < 0:
             errors.append(f"{e.id}: lag_turns must be >= 0, got {e.lag_turns}")
+        if e.aggregation is not None and e.aggregation not in VALID_AGGREGATIONS:
+            errors.append(f"{e.id}: invalid aggregation {e.aggregation!r}")
+    return errors
+
+
+def validate_aggregation_consistency(
+    edges: List[CausalEdge], metric_categories: dict
+) -> List[str]:
+    """Checks that every vector→global edge has aggregation defined,
+    and that within_block / spillover / matrix_targeted edges DON'T have aggregation.
+
+    metric_categories: {base_metric_key: "vectorized" | "global" | "matrix"}
+    """
+    errors: List[str] = []
+    for e in edges:
+        src_cat = metric_categories.get(e.base_source)
+        tgt_cat = metric_categories.get(e.base_target)
+        if src_cat == "vectorized" and tgt_cat == "global":
+            if e.aggregation is None:
+                errors.append(
+                    f"{e.id}: vector→global edge missing aggregation field "
+                    f"({e.source} → {e.target})"
+                )
+        elif e.aggregation is not None:
+            # Allow aggregation on global→global edges (for symmetry/clarity)
+            # but not on within_block / spillover / matrix_targeted
+            if e.scope in ("within_block", "spillover", "matrix_targeted"):
+                if src_cat != "vectorized" or tgt_cat != "global":
+                    # aggregation only meaningful for vector→global
+                    errors.append(
+                        f"{e.id}: aggregation set but edge is not vector→global "
+                        f"(scope={e.scope}, src={src_cat}, tgt={tgt_cat})"
+                    )
+    return errors
+
+
+def validate_matrix_targeted_scope(
+    edges: List[CausalEdge], metric_categories: dict
+) -> List[str]:
+    """Edges whose target is a matrix metric must have scope='matrix_targeted'."""
+    errors: List[str] = []
+    for e in edges:
+        tgt_cat = metric_categories.get(e.base_target)
+        if tgt_cat == "matrix":
+            if e.scope != "matrix_targeted":
+                errors.append(
+                    f"{e.id}: target {e.target!r} is matrix metric "
+                    f"but scope is {e.scope!r} (must be 'matrix_targeted')"
+                )
+        elif e.scope == "matrix_targeted" and tgt_cat != "matrix":
+            errors.append(
+                f"{e.id}: scope is matrix_targeted but target {e.target!r} "
+                f"is not a matrix metric (category={tgt_cat})"
+            )
     return errors
 
 

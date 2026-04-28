@@ -7,7 +7,11 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set
 
-VALID_FORMS = {"linear", "log_linear", "sigmoid", "exponential_decay"}
+VALID_FORMS = {"linear", "log_linear", "sigmoid", "exponential_decay", "sigmoid_temporal"}
+
+REQUIRED_PARAMS = {
+    "sigmoid_temporal": {"alpha_pre", "alpha_post", "activation_metric", "activation_block", "threshold"},
+}
 
 
 @dataclass
@@ -45,6 +49,13 @@ def validate_functions(fns: List[StructuralFunction], known_edge_ids: Set[str]) 
             errors.append(f"function references unknown edge_id {f.edge_id}")
         if f.form not in VALID_FORMS:
             errors.append(f"{f.edge_id}: invalid form {f.form!r}")
+            continue
+        required = REQUIRED_PARAMS.get(f.form, set())
+        missing = required - set(f.parameters.keys())
+        if missing:
+            errors.append(
+                f"{f.edge_id}: form {f.form!r} missing required parameters: {sorted(missing)}"
+            )
     missing_fns = known_edge_ids - seen
     if missing_fns:
         errors.append(

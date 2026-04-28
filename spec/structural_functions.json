@@ -6,7 +6,8 @@
       "linear": "delta_target = alpha * delta_source",
       "log_linear": "delta_target = alpha * log(1 + source / beta) (retornos decrescentes)",
       "sigmoid": "target_t = beta / (1 + exp(-alpha * (source - midpoint))) (saturação)",
-      "exponential_decay": "delta_target = alpha * source * exp(-t / beta) (efeito que fade)"
+      "exponential_decay": "delta_target = alpha * source * exp(-t / beta) (efeito que fade)",
+      "sigmoid_temporal": "Magnitude muda no tempo conforme uma activation_metric cruza um threshold. Antes: alpha_pre. Depois: alpha_post. Captura não-linearidade dose-resposta histórica (e.g., disinformação pré vs pós-2016)."
     }
   },
   "functions": [
@@ -35,7 +36,7 @@
     {"edge_id": "e_022", "form": "linear", "parameters": {"alpha": 4.0, "beta": null}, "clamp_to_range": true, "draft": true},
     {"edge_id": "e_023", "form": "linear", "parameters": {"alpha": -0.5, "beta": null}, "clamp_to_range": true, "draft": true},
 
-    {"edge_id": "e_024", "form": "linear", "parameters": {"alpha": -0.05, "beta": null}, "clamp_to_range": true, "draft": true},
+    {"edge_id": "e_024", "form": "sigmoid_temporal", "parameters": {"alpha_pre": -0.02, "alpha_post": -0.08, "activation_metric": "ai_capability.population_penetration", "activation_block": "weighted_mean", "threshold": 30}, "clamp_to_range": true, "draft": true, "etapa_1_5_note": "Dose-response da disinfo→democracia mudou pós-2016 (Brexit/Trump): magnitude weak antes do threshold, strong depois."},
     {"edge_id": "e_025", "form": "linear", "parameters": {"alpha": 0.02, "beta": null}, "clamp_to_range": true, "draft": true},
     {"edge_id": "e_026", "form": "linear", "parameters": {"alpha": 1.5, "beta": null}, "clamp_to_range": true, "draft": true},
     {"edge_id": "e_027", "form": "linear", "parameters": {"alpha": -0.05, "beta": null}, "clamp_to_range": true, "draft": true},
@@ -78,8 +79,8 @@
     {"edge_id": "e_060", "form": "linear", "parameters": {"alpha": 0.15, "beta": null}, "clamp_to_range": true, "draft": true},
     {"edge_id": "e_061", "form": "linear", "parameters": {"alpha": 0.2, "beta": null}, "clamp_to_range": true, "draft": true},
     {"edge_id": "e_062", "form": "linear", "parameters": {"alpha": 0.4, "beta": null}, "clamp_to_range": true, "draft": true},
-    {"edge_id": "e_063", "form": "linear", "parameters": {"alpha": 0.2, "beta": null}, "clamp_to_range": true, "draft": true},
-    {"edge_id": "e_064", "form": "linear", "parameters": {"alpha": 0.15, "beta": null}, "clamp_to_range": true, "draft": true},
+    {"edge_id": "e_063", "form": "sigmoid_temporal", "parameters": {"alpha_pre": 0.1, "alpha_post": 0.35, "activation_metric": "ai_capability.population_penetration", "activation_block": "EU", "threshold": 25}, "clamp_to_range": true, "draft": true, "etapa_1_5_note": "Spillover de disinfo US→EU também mudou de patamar pós-2016."},
+    {"edge_id": "e_064", "form": "sigmoid_temporal", "parameters": {"alpha_pre": 0.07, "alpha_post": 0.30, "activation_metric": "ai_capability.population_penetration", "activation_block": "RoW", "threshold": 30}, "clamp_to_range": true, "draft": true, "etapa_1_5_note": "Spillover de disinfo US→RoW. Threshold em 30% (RoW chega depois)."},
 
     {"edge_id": "e_065", "form": "linear", "parameters": {"alpha": 0.3, "beta": null}, "clamp_to_range": true, "draft": true},
     {"edge_id": "e_066", "form": "linear", "parameters": {"alpha": 0.3, "beta": null}, "clamp_to_range": true, "draft": true},

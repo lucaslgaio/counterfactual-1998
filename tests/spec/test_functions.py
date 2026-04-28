@@ -53,3 +53,39 @@ def test_duplicate_function_caught():
     ]
     errors = validate_functions(fns, {"e_001"})
     assert any("duplicate function" in e for e in errors)
+
+
+# Etapa 1.5 — sigmoid_temporal
+
+
+def test_sigmoid_temporal_form_accepted():
+    fn = StructuralFunction(
+        edge_id="e_024", form="sigmoid_temporal",
+        parameters={
+            "alpha_pre": 0.02, "alpha_post": 0.08,
+            "activation_metric": "ai_capability.population_penetration",
+            "activation_block": "weighted_mean", "threshold": 30,
+        },
+    )
+    errors = validate_functions([fn], {"e_024"})
+    assert not errors
+
+
+def test_sigmoid_temporal_missing_params_caught():
+    fn = StructuralFunction(
+        edge_id="e_024", form="sigmoid_temporal",
+        parameters={"alpha_pre": 0.02},  # missing alpha_post, activation_*, threshold
+    )
+    errors = validate_functions([fn], {"e_024"})
+    assert any("missing required parameters" in e for e in errors)
+
+
+def test_real_sigmoid_temporal_edges_have_all_params():
+    """Edges e_024, e_063, e_064 should be sigmoid_temporal after Rodada 1."""
+    fns = load_functions(SPEC_DIR / "structural_functions.json")
+    by_id = {f.edge_id: f for f in fns}
+    for eid in ("e_024", "e_063", "e_064"):
+        f = by_id[eid]
+        assert f.form == "sigmoid_temporal", f"{eid} should be sigmoid_temporal, got {f.form}"
+        for param in ("alpha_pre", "alpha_post", "activation_metric", "activation_block", "threshold"):
+            assert param in f.parameters, f"{eid} missing {param}"

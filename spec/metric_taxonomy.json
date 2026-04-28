@@ -1,13 +1,23 @@
 {
   "_meta": {
     "draft": true,
-    "description": "Classificação das 24 métricas em vectorized (10) | global (12) | matrix (2). Total: 24. Initial values for vectorized metrics are DRAFT estimates for 1998 — see docs/causal_dag/geographic_blocks.md for justification.",
+    "description": "Classificação das 26 métricas em vectorized (14) | global (10) | matrix (2). Total: 26. Initial values for vectorized metrics are DRAFT estimates for 1998 — see docs/causal_dag/geographic_blocks.md for justification.",
     "categories": {
       "vectorized": "Per-block scalar (US, EU, CN, RoW). Key format: 'dimension.metric.BLOCK'.",
       "global": "Single global scalar. Key format: 'dimension.metric'.",
       "matrix": "Pairwise 4x4 matrix between blocks. Key format: 'dimension.metric.A_B'."
     },
-    "blocks": ["US", "EU", "CN", "RoW"]
+    "blocks": ["US", "EU", "CN", "RoW"],
+    "etapa_1_5_changes": {
+      "vectorized_added": [
+        "science_rd.publications_index (was global)",
+        "education.mean_years_schooling (was global)",
+        "inequality.gini_intra_block (replaced global gini, paired with gini_between_blocks)",
+        "health.mental_wellbeing (new)"
+      ],
+      "global_removed": ["inequality.global_gini (replaced by intra/between split)"],
+      "global_added": ["inequality.gini_between_blocks (replaces global_gini for between-country dynamics)"]
+    }
   },
   "metrics": [
     {
@@ -121,168 +131,43 @@
       "draft": true
     },
     {
-      "metric_key": "governance.democracy_index",
-      "category": "vectorized",
-      "cluster": "politica",
-      "dimension": "governance",
-      "metric": "democracy_index",
-      "description": "Índice de democracia do bloco (estilo EIU/V-Dem). 0=autoritário, 10=democracia plena.",
-      "unit": "0-10",
-      "range": [0, 10],
-      "bad_when_up": false,
-      "anchors": [
-        {"value": 3, "label": "recuo autoritário"},
-        {"value": 5.5, "label": "média global 1998"},
-        {"value": 7, "label": "democracia consolidada"}
-      ],
-      "initial_values": {"US": 8.0, "EU": 7.8, "CN": 2.5, "RoW": 5.0},
-      "draft": true
-    },
-    {
-      "metric_key": "governance.ai_regulation_maturity",
-      "category": "vectorized",
-      "cluster": "politica",
-      "dimension": "governance",
-      "metric": "ai_regulation_maturity",
-      "description": "Maturidade da regulação de IA no bloco.",
-      "unit": "0-100",
-      "range": [0, 100],
-      "bad_when_up": false,
-      "anchors": [
-        {"value": 0, "label": "ponto de partida 1998"},
-        {"value": 40, "label": "AI Act-like"},
-        {"value": 90, "label": "regulação vinculante consolidada"}
-      ],
-      "initial_values": {"US": 0, "EU": 0, "CN": 0, "RoW": 0},
-      "draft": true
-    },
-    {
-      "metric_key": "information_ecosystem.disinformation_level",
-      "category": "vectorized",
-      "cluster": "informacao_ambiente",
-      "dimension": "information_ecosystem",
-      "metric": "disinformation_level",
-      "description": "Nível de desinformação circulando no ecossistema informacional do bloco.",
-      "unit": "0-100",
-      "range": [0, 100],
-      "bad_when_up": true,
-      "anchors": [
-        {"value": 18, "label": "ponto de partida 1998"},
-        {"value": 50, "label": "deepfakes industriais"},
-        {"value": 80, "label": "realidade fragmentada"}
-      ],
-      "initial_values": {"US": 18, "EU": 16, "CN": 22, "RoW": 19},
-      "draft": true
-    },
-    {
-      "metric_key": "science_rd.breakthroughs_per_year",
-      "category": "vectorized",
-      "cluster": "conhecimento_saude",
-      "dimension": "science_rd",
-      "metric": "breakthroughs_per_year",
-      "description": "Número de descobertas científicas significativas por ano originadas no bloco.",
-      "unit": "count/year",
-      "range": [0, 1000],
-      "bad_when_up": false,
-      "anchors": [
-        {"value": 12, "label": "ponto de partida global 1998"},
-        {"value": 50, "label": "ritmo acelerado por IA"},
-        {"value": 200, "label": "AGI fazendo ciência"}
-      ],
-      "initial_values": {"US": 6, "EU": 4, "CN": 1, "RoW": 1},
-      "draft": true
-    },
-    {
-      "metric_key": "financial_markets.global_index",
-      "category": "global",
-      "cluster": "economia",
-      "dimension": "financial_markets",
-      "metric": "global_index",
-      "description": "Índice agregado dos mercados de ações globais. Base 100 em S1/1998.",
-      "unit": "base 100",
-      "range": [0, 10000],
-      "bad_when_up": false,
-      "anchors": [
-        {"value": 60, "label": "crash severo"},
-        {"value": 100, "label": "ponto de partida 1998"},
-        {"value": 250, "label": "alta de longo prazo"},
-        {"value": 500, "label": "boom histórico"}
-      ],
-      "initial_values": {"value": 100},
-      "draft": false
-    },
-    {
-      "metric_key": "financial_markets.systemic_risk",
-      "category": "global",
-      "cluster": "economia",
-      "dimension": "financial_markets",
-      "metric": "systemic_risk",
-      "description": "Risco de falha em cascata no sistema financeiro global.",
-      "unit": "0-100",
-      "range": [0, 100],
-      "bad_when_up": true,
-      "anchors": [
-        {"value": 10, "label": "calmaria"},
-        {"value": 35, "label": "ponto de partida 1998"},
-        {"value": 70, "label": "subprime 2007"},
-        {"value": 90, "label": "Lehman 2008"}
-      ],
-      "initial_values": {"value": 35},
-      "draft": false
-    },
-    {
       "metric_key": "education.mean_years_schooling",
-      "category": "global",
+      "category": "vectorized",
       "cluster": "sociedade",
       "dimension": "education",
       "metric": "mean_years_schooling",
-      "description": "Média global de anos de escolaridade (Barro-Lee/UNESCO).",
+      "description": "Média de anos de escolaridade da população adulta do bloco (Barro-Lee/UNESCO).",
       "unit": "anos",
       "range": [0, 25],
       "bad_when_up": false,
       "anchors": [
-        {"value": 7.4, "label": "ponto de partida 1998"},
+        {"value": 7.4, "label": "média global 1998 (referência histórica)"},
         {"value": 10, "label": "ensino médio universal"},
         {"value": 14, "label": "ensino superior universal"}
       ],
-      "initial_values": {"value": 7.4},
-      "draft": false
+      "initial_values": {"US": 12.4, "EU": 9.2, "CN": 6.4, "RoW": 5.8},
+      "draft": true,
+      "etapa_1_5_note": "Was global; vectorized in Rodada 1 because trajectories diverged dramatically per bloco. US estagnou ~13.5 desde 1990, EU subiu de 9 pra 12, China de 6 pra 10."
     },
     {
-      "metric_key": "education.cost_index",
-      "category": "global",
-      "cluster": "sociedade",
-      "dimension": "education",
-      "metric": "cost_index",
-      "description": "Índice global de custo de acesso à educação. Base 100 em 1998.",
-      "unit": "base 100",
-      "range": [0, 1000],
-      "bad_when_up": true,
-      "anchors": [
-        {"value": 50, "label": "educação mais barata via IA tutor"},
-        {"value": 100, "label": "ponto de partida 1998"},
-        {"value": 200, "label": "elitização"}
-      ],
-      "initial_values": {"value": 100},
-      "draft": false
-    },
-    {
-      "metric_key": "inequality.global_gini",
-      "category": "global",
+      "metric_key": "inequality.gini_intra_block",
+      "category": "vectorized",
       "cluster": "sociedade",
       "dimension": "inequality",
-      "metric": "global_gini",
-      "description": "Coeficiente de Gini de renda em escala global. 0=igualdade, 1=desigualdade extrema.",
+      "metric": "gini_intra_block",
+      "description": "Coeficiente de Gini de renda dentro do bloco (desigualdade interna). 0=igualdade, 1=desigualdade extrema.",
       "unit": "0-1",
       "range": [0, 1],
       "bad_when_up": true,
       "anchors": [
-        {"value": 0.55, "label": "menos desigual"},
-        {"value": 0.69, "label": "ponto de partida 1998"},
-        {"value": 0.85, "label": "catastrófico"}
+        {"value": 0.30, "label": "EU 1998 — distribuição relativamente igual"},
+        {"value": 0.42, "label": "US 1998 — desigualdade alta"},
+        {"value": 0.55, "label": "Brasil/Latam 1990s extremo"},
+        {"value": 0.70, "label": "captura oligárquica catastrófica"}
       ],
-      "initial_values": {"value": 0.69},
-      "draft": false
+      "initial_values": {"US": 0.42, "EU": 0.30, "CN": 0.40, "RoW": 0.48},
+      "draft": true,
+      "etapa_1_5_note": "Replaces inequality.global_gini (split into intra/between blocks)."
     },
     {
       "metric_key": "inequality.top1pct_share",
@@ -339,22 +224,190 @@
       "draft": false
     },
     {
+      "metric_key": "health.mental_wellbeing",
+      "category": "vectorized",
+      "cluster": "conhecimento_saude",
+      "dimension": "health",
+      "metric": "mental_wellbeing",
+      "description": "Bem-estar psicossocial agregado da população do bloco. Combina solidão, sentido de propósito, ansiedade, qualidade do sono. Escala 0-100, baseline arbitrário.",
+      "unit": "0-100",
+      "range": [0, 100],
+      "bad_when_up": false,
+      "anchors": [
+        {"value": 0, "label": "colapso (fome generalizada, guerra civil)"},
+        {"value": 50, "label": "pré-modernidade"},
+        {"value": 70, "label": "baseline pós-guerra próspero"},
+        {"value": 90, "label": "utopia ainda não vista"}
+      ],
+      "initial_values": {"US": 65, "EU": 70, "CN": 60, "RoW": 55},
+      "draft": true,
+      "etapa_1_5_note": "New metric added in Rodada 1. Captures the most-felt effects of AI on daily life (loneliness, parasocial bonds, fragmented attention)."
+    },
+    {
       "metric_key": "science_rd.publications_index",
-      "category": "global",
+      "category": "vectorized",
       "cluster": "conhecimento_saude",
       "dimension": "science_rd",
       "metric": "publications_index",
-      "description": "Índice de publicações científicas globais. Base 100 em 1998.",
+      "description": "Índice de publicações científicas anuais por bloco. Base 100 = US 1998.",
+      "unit": "index (US 1998 = 100)",
+      "range": [0, 10000],
+      "bad_when_up": false,
+      "anchors": [
+        {"value": 100, "label": "US 1998 (referência)"},
+        {"value": 300, "label": "ciência 3x"},
+        {"value": 1000, "label": "explosão por IA"}
+      ],
+      "initial_values": {"US": 100, "EU": 80, "CN": 25, "RoW": 30},
+      "draft": true,
+      "etapa_1_5_note": "Was global; vectorized in Rodada 1 because production is highly regional. China ultrapassou US em volume desde ~2018; tratar como escalar global apaga essa dinâmica."
+    },
+    {
+      "metric_key": "science_rd.breakthroughs_per_year",
+      "category": "vectorized",
+      "cluster": "conhecimento_saude",
+      "dimension": "science_rd",
+      "metric": "breakthroughs_per_year",
+      "description": "Número de descobertas científicas significativas por ano originadas no bloco.",
+      "unit": "count/year",
+      "range": [0, 1000],
+      "bad_when_up": false,
+      "anchors": [
+        {"value": 12, "label": "ponto de partida global 1998"},
+        {"value": 50, "label": "ritmo acelerado por IA"},
+        {"value": 200, "label": "AGI fazendo ciência"}
+      ],
+      "initial_values": {"US": 6, "EU": 4, "CN": 1, "RoW": 1},
+      "draft": true
+    },
+    {
+      "metric_key": "governance.democracy_index",
+      "category": "vectorized",
+      "cluster": "politica",
+      "dimension": "governance",
+      "metric": "democracy_index",
+      "description": "Índice de democracia do bloco (estilo EIU/V-Dem). 0=autoritário, 10=democracia plena.",
+      "unit": "0-10",
+      "range": [0, 10],
+      "bad_when_up": false,
+      "anchors": [
+        {"value": 3, "label": "recuo autoritário"},
+        {"value": 5.5, "label": "média global 1998"},
+        {"value": 7, "label": "democracia consolidada"}
+      ],
+      "initial_values": {"US": 8.0, "EU": 7.8, "CN": 2.5, "RoW": 5.0},
+      "draft": true
+    },
+    {
+      "metric_key": "governance.ai_regulation_maturity",
+      "category": "vectorized",
+      "cluster": "politica",
+      "dimension": "governance",
+      "metric": "ai_regulation_maturity",
+      "description": "Maturidade da regulação de IA no bloco.",
+      "unit": "0-100",
+      "range": [0, 100],
+      "bad_when_up": false,
+      "anchors": [
+        {"value": 0, "label": "ponto de partida 1998"},
+        {"value": 40, "label": "AI Act-like"},
+        {"value": 90, "label": "regulação vinculante consolidada"}
+      ],
+      "initial_values": {"US": 0, "EU": 0, "CN": 0, "RoW": 0},
+      "draft": true
+    },
+    {
+      "metric_key": "information_ecosystem.disinformation_level",
+      "category": "vectorized",
+      "cluster": "informacao_ambiente",
+      "dimension": "information_ecosystem",
+      "metric": "disinformation_level",
+      "description": "Nível de desinformação circulando no ecossistema informacional do bloco.",
+      "unit": "0-100",
+      "range": [0, 100],
+      "bad_when_up": true,
+      "anchors": [
+        {"value": 18, "label": "ponto de partida 1998"},
+        {"value": 50, "label": "deepfakes industriais"},
+        {"value": 80, "label": "realidade fragmentada"}
+      ],
+      "initial_values": {"US": 18, "EU": 16, "CN": 22, "RoW": 19},
+      "draft": true
+    },
+    {
+      "metric_key": "financial_markets.global_index",
+      "category": "global",
+      "cluster": "economia",
+      "dimension": "financial_markets",
+      "metric": "global_index",
+      "description": "Índice agregado dos mercados de ações globais. Base 100 em S1/1998.",
       "unit": "base 100",
       "range": [0, 10000],
       "bad_when_up": false,
       "anchors": [
+        {"value": 60, "label": "crash severo"},
         {"value": 100, "label": "ponto de partida 1998"},
-        {"value": 300, "label": "ciência 3x"},
-        {"value": 1000, "label": "explosão por IA"}
+        {"value": 250, "label": "alta de longo prazo"},
+        {"value": 500, "label": "boom histórico"}
       ],
       "initial_values": {"value": 100},
       "draft": false
+    },
+    {
+      "metric_key": "financial_markets.systemic_risk",
+      "category": "global",
+      "cluster": "economia",
+      "dimension": "financial_markets",
+      "metric": "systemic_risk",
+      "description": "Risco de falha em cascata no sistema financeiro global.",
+      "unit": "0-100",
+      "range": [0, 100],
+      "bad_when_up": true,
+      "anchors": [
+        {"value": 10, "label": "calmaria"},
+        {"value": 35, "label": "ponto de partida 1998"},
+        {"value": 70, "label": "subprime 2007"},
+        {"value": 90, "label": "Lehman 2008"}
+      ],
+      "initial_values": {"value": 35},
+      "draft": false
+    },
+    {
+      "metric_key": "education.cost_index",
+      "category": "global",
+      "cluster": "sociedade",
+      "dimension": "education",
+      "metric": "cost_index",
+      "description": "Índice global de custo de acesso à educação. Base 100 em 1998.",
+      "unit": "base 100",
+      "range": [0, 1000],
+      "bad_when_up": true,
+      "anchors": [
+        {"value": 50, "label": "educação mais barata via IA tutor"},
+        {"value": 100, "label": "ponto de partida 1998"},
+        {"value": 200, "label": "elitização"}
+      ],
+      "initial_values": {"value": 100},
+      "draft": false
+    },
+    {
+      "metric_key": "inequality.gini_between_blocks",
+      "category": "global",
+      "cluster": "sociedade",
+      "dimension": "inequality",
+      "metric": "gini_between_blocks",
+      "description": "Coeficiente de Gini de renda ENTRE blocos geográficos (desigualdade global entre nações). Mede convergência/divergência entre US, EU, CN, RoW. 0=blocos com mesma renda média, 1=disparidade extrema.",
+      "unit": "0-1",
+      "range": [0, 1],
+      "bad_when_up": true,
+      "anchors": [
+        {"value": 0.55, "label": "convergência significativa"},
+        {"value": 0.69, "label": "ponto de partida 1998"},
+        {"value": 0.85, "label": "disparidade catastrófica"}
+      ],
+      "initial_values": {"value": 0.69},
+      "draft": true,
+      "etapa_1_5_note": "Replaces inequality.global_gini (split). Polaridade ambígua: convergência entre blocos pode ser bom (RoW melhorando) OU ruim (US se aproximando de RoW por declínio). Para fins de display, marcado bad_when_up=true (interpretação dominante: desigualdade entre nações é ruim)."
     },
     {
       "metric_key": "energy_climate.co2_gt_year",

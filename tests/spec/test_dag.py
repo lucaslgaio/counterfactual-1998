@@ -13,7 +13,9 @@ from src.spec.dag import (
     build_networkx_graph,
     load_dag,
     validate_acyclicity,
+    validate_aggregation_consistency,
     validate_edge_fields,
+    validate_matrix_targeted_scope,
     validate_metric_references,
 )
 
@@ -105,3 +107,96 @@ def test_build_networkx_graph_real_dag():
     g = build_networkx_graph(edges)
     assert g.number_of_nodes() > 0
     assert g.number_of_edges() > 0
+
+
+# Etapa 1.5 — novos validadores
+
+
+def _categories_from_real_taxonomy() -> dict:
+    raw = json.loads((SPEC_DIR / "metric_taxonomy.json").read_text(encoding="utf-8"))
+    return {m["metric_key"]: m["category"] for m in raw["metrics"]}
+
+
+def test_real_dag_passes_aggregation_consistency():
+    edges = load_dag(SPEC_DIR / "causal_dag.json")
+    cats = _categories_from_real_taxonomy()
+    errors = validate_aggregation_consistency(edges, cats)
+    assert not errors, f"aggregation errors: {errors}"
+
+
+def test_real_dag_passes_matrix_targeted_scope():
+    edges = load_dag(SPEC_DIR / "causal_dag.json")
+    cats = _categories_from_real_taxonomy()
+    errors = validate_matrix_targeted_scope(edges, cats)
+    assert not errors, f"matrix_targeted errors: {errors}"
+
+
+def test_aggregation_required_for_vector_to_global():
+    bad = [CausalEdge(
+        id="e_x", source="ai_capability.frontier_capability",
+        target="financial_markets.global_index", direction="positive",
+        magnitude="medium", lag_turns=1, scope="global",
+        justification_ref="x", aggregation=None,
+    )]
+    cats = {
+        "ai_capability.frontier_capability": "vectorized",
+        "financial_markets.global_index": "global",
+    }
+    errors = validate_aggregation_consistency(bad, cats)
+    assert any("missing aggregation" in e for e in errors)
+
+
+def test_aggregation_invalid_value_caught():
+    bad = [CausalEdge(
+        id="e_x", source="a.b", target="c.d", direction="positive",
+        magnitude="medium", lag_turns=1, scope="global",
+        justification_ref="x", aggregation="invalid_agg",
+    )]
+    errors = validate_edge_fields(bad)
+    assert any("invalid aggregation" in e for e in errors)
+
+
+def test_matrix_targeted_required_when_target_is_matrix():
+    bad = [CausalEdge(
+        id="e_x", source="ai_capability.frontier_capability",
+        target="geopolitics.bilateral_tensions", direction="positive",
+        magnitude="medium", lag_turns=1, scope="global",
+        justification_ref="x",
+    )]
+    cats = {
+        "ai_capability.frontier_capability": "vectorized",
+        "geopolitics.bilateral_tensions": "matrix",
+    }
+    errors = validate_matrix_targeted_scope(bad, cats)
+    assert any("must be 'matrix_targeted'" in e for e in errors)
+
+
+def test_matrix_targeted_rejected_when_target_not_matrix():
+    bad = [CausalEdge(
+        id="e_x", source="a.b", target="financial_markets.global_index",
+        direction="positive", magnitude="medium", lag_turns=1,
+        scope="matrix_targeted", justification_ref="x",
+    )]
+    cats = {
+        "a.b": "vectorized",
+        "financial_markets.global_index": "global",
+    }
+    errors = validate_matrix_targeted_scope(bad, cats)
+    assert any("not a matrix metric" in e for e in errors)
+
+
+def test_negligible_magnitude_accepted():
+    edge = CausalEdge(
+        id="e_x", source="a.b", target="c.d", direction="positive",
+        magnitude="negligible", lag_turns=1, scope="global",
+        justification_ref="x",
+    )
+    errors = validate_edge_fields([edge])
+    assert not errors
+
+
+def test_direction_contested_field_loaded():
+    """Edges with direction_contested=true should round-trip from JSON."""
+    edges = load_dag(SPEC_DIR / "causal_dag.json")
+    contested = [e for e in edges if e.direction_contested]
+    assert len(contested) >= 1, "expected at least one direction_contested edge after Rodada 1"

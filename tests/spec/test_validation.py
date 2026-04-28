@@ -22,7 +22,7 @@ def test_full_validation_returns_stats():
         "delta_packages", "composite_factors", "blocks", "spillover_pairs",
     }
     assert expected_keys.issubset(report.stats.keys())
-    assert report.stats["metrics"] == 24
+    assert report.stats["metrics"] == 26  # 24 base + mental_wellbeing + gini_between_blocks (Etapa 1.5)
     assert report.stats["events"] == 16
     assert report.stats["edges"] >= 60
 

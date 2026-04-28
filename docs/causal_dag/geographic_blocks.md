@@ -38,7 +38,14 @@ Os valores em `spec/geographic_blocks.json` são DRAFT mas baseados em ordens de
 
 `tech_capacity_1998` é um proxy 0-1 para "capacidade de absorver tecnologia de fronteira" (combina infra digital, capital humano em STEM, mercado financeiro de risco). Não é um dado bruto — é uma estimativa estruturada. Validar contra ICT Development Index do ITU.
 
-## Inicialização das 10 métricas vectorizadas
+## Inicialização das métricas vectorizadas (14 após Etapa 1.5)
+
+> **Etapa 1.5 — Rodada 1**: 4 mudanças de taxonomia foram aplicadas (4 novas métricas vectorizadas):
+> - `science_rd.publications_index` migrou de global para vectorized (US: 100 base = 1998; EU: 80; CN: 25; RoW: 30). China em volume ultrapassou US a partir de ~2018, dinâmica regional crítica.
+> - `education.mean_years_schooling` migrou de global para vectorized (US: 12.4; EU: 9.2; CN: 6.4; RoW: 5.8). Trajetórias divergiram radicalmente: US estagnou em ~13.5 desde 1990, EU subiu de 9 para 12, CN de 6 para 10.
+> - `inequality.global_gini` foi substituída por par: `gini_intra_block` (vectorized, US: 0.42; EU: 0.30; CN: 0.40; RoW: 0.48) + `gini_between_blocks` (global, 0.69). Mecanismos opostos — convergência entre vs divergência intra — agora separados.
+> - `health.mental_wellbeing` foi adicionada (vectorized, US: 65; EU: 70; CN: 60; RoW: 55). Captura efeitos psicossociais que o sistema antes ignorava.
+
 
 A divisão dos valores iniciais 1998 entre os 4 blocos exigiu propor números plausíveis quando dado granular não estava disponível. Convenção:
 

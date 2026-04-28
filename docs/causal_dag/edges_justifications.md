@@ -2,6 +2,18 @@
 
 Cada uma das 87 edges em `spec/causal_dag.json` tem uma seção curta abaixo. **Todas marcadas DRAFT** — revisão humana em pares (humano + Claude Chat) é parte da Etapa 2.
 
+> **Etapa 1.5 — Rodada 1**: edges que referenciavam `inequality.global_gini` foram migradas:
+> - e_009, e_011, e_016, e_017, e_020 → agora usam `inequality.gini_intra_block` (mecanismos atuam intra-bloco).
+> - e_022 → usa `inequality.gini_between_blocks` (Collier-style argumento sobre desigualdade entre nações).
+>
+> Edges que ficaram com ambos endpoints vectorizados (após `publications_index` e `mean_years_schooling` virarem vectorized) mudaram scope de `global` para `within_block`: e_009, e_011, e_014, e_016, e_033, e_038, e_078, e_084, e_085.
+>
+> Edges com target em métrica matricial (`bilateral_tensions`, `active_conflicts`) ganharam scope `matrix_targeted`: e_022, e_023, e_067, e_068, e_072, e_086, e_087.
+>
+> Edges vector→global ganharam campo `aggregation`: e_004 (`leader`), e_005, e_006, e_010, e_013, e_026, e_028, e_032, e_035, e_036, e_046, e_047, e_050, e_080 (todos `weighted_mean`).
+>
+> Edges e_024, e_063, e_064 mudaram forma estrutural para `sigmoid_temporal` (dose-resposta de disinformação mudou pós-2016).
+
 Convenção: magnitude qualitativa, lag em turnos (1 turno = 1 semestre), scope = within_block / spillover / global.
 
 Onde indico referências, sugiro papers que tenho confiança razoável que existem; onde houver dúvida, marquei `[verificar referência]`.

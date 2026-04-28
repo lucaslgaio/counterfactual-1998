@@ -16,7 +16,9 @@ from src.spec.dag import (
     CausalEdge,
     load_dag,
     validate_acyclicity,
+    validate_aggregation_consistency,
     validate_edge_fields,
+    validate_matrix_targeted_scope,
     validate_metric_references,
 )
 from src.spec.events import (
@@ -69,6 +71,7 @@ def run_full_validation(spec_dir: Path = SPEC_DIR_DEFAULT) -> ValidationReport:
     metrics = load_metric_taxonomy(taxonomy_path)
     base_keys: Set[str] = {m["metric_key"] for m in metrics}
     full_keys: Set[str] = expand_metric_keys(metrics)
+    metric_categories: Dict[str, str] = {m["metric_key"]: m["category"] for m in metrics}
 
     blocks_spec: BlocksSpec = load_blocks(blocks_path)
     block_errors = validate_blocks(blocks_spec)
@@ -83,6 +86,12 @@ def run_full_validation(spec_dir: Path = SPEC_DIR_DEFAULT) -> ValidationReport:
 
     cycle_errors = validate_acyclicity(edges)
     report.errors.extend(f"[dag] {e}" for e in cycle_errors)
+
+    agg_errors = validate_aggregation_consistency(edges, metric_categories)
+    report.errors.extend(f"[dag] {e}" for e in agg_errors)
+
+    matrix_errors = validate_matrix_targeted_scope(edges, metric_categories)
+    report.errors.extend(f"[dag] {e}" for e in matrix_errors)
 
     fns: List[StructuralFunction] = load_functions(fns_path)
     fn_errors = validate_functions(fns, {e.id for e in edges})

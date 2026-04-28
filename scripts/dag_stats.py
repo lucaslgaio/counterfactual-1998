@@ -40,8 +40,22 @@ def main() -> int:
 
     print("## Scope distribution")
     scope = Counter(e.scope for e in edges)
-    for k in ("within_block", "spillover", "global"):
+    for k in ("within_block", "spillover", "global", "matrix_targeted"):
         print(f"- {k}: {scope.get(k, 0)}")
+    print()
+
+    print("## Aggregation distribution (vector→global edges)")
+    agg = Counter(e.aggregation for e in edges if e.aggregation is not None)
+    for k, v in agg.most_common():
+        print(f"- {k}: {v}")
+    print(f"- (none): {sum(1 for e in edges if e.aggregation is None)}")
+    print()
+
+    print("## Direction-contested edges")
+    contested = [e for e in edges if e.direction_contested]
+    print(f"- count: {len(contested)}")
+    for e in contested[:5]:
+        print(f"  - {e.id}: {e.source} → {e.target}")
     print()
 
     print("## Lag distribution (turns)")
