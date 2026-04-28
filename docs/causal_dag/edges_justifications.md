@@ -590,3 +590,47 @@ no corpo deste documento. Justificativa inicial vive em `etapa_1_5_note`
 **Confidence**: medium
 
 **Validation note**: Corporate R&D budgets correlam com market valuations. Magnitude weak honesta — corporate R&D e ~30% do R&D global, balance publico dominante. Refs: Brown Fazzari Petersen 2009 J Finance; National Science Board Indicators (annual); Hall Lerner 2010 Handbook.
+
+### e_104: education.mean_years_schooling → information_ecosystem.media_trust
+- **Direção**: positiva | **Magnitude**: weak | **Lag**: 8 turnos | **Scope**: global
+
+**Justificativa Rodada 3**: Rodada 3: educação como capacidade crítica (mais discriminação de fontes confiáveis) vs cinismo (desconfiança de tudo). Direção contestada. Scope global porque target media_trust é global.
+
+**Referências validadas (Etapa 2)**:
+- Edelman Trust Barometer 2024, "Annual Global Trust Survey"
+- Tsfati & Ariely 2014, Communication Research 41(6):760-782, "Individual and Contextual Correlates of Trust in Media"
+- Hopmann, Shehata & Stromback 2015, Journalism Studies 16(5):667-685, "Contagious Media Effects: How Media Use and Exposure to Game-Framed News Influence Media Trust"
+
+**Confidence**: medium
+
+**Validation note**: Direcao genuinamente ambigua: mais educado correlaciona com menos confianca em midia tradicional (cinismo informado) mas mais confianca em midia 'de qualidade' curada. Net global e fraco. Refs: Edelman Trust Barometer 2024; Tsfati Ariely 2014 Communication Research; Hopmann Shehata Stromback 2015 Journalism Studies.
+
+### e_122: inequality.gini_intra_block → health.life_expectancy
+- **Direção**: negativa | **Magnitude**: medium | **Lag**: 8 turnos | **Scope**: global
+
+**Justificativa Rodada 3**: Rodada 3: Wilkinson & Pickett 'The Spirit Level' — desigualdade alta encurta vida média mesmo controlando renda absoluta
+
+**Referências validadas (Etapa 2)**:
+- Wilkinson & Pickett 2009, Allen Lane, "The Spirit Level: Why More Equal Societies Almost Always Do Better"
+- Pickett & Wilkinson 2015, Social Science & Medicine 128:316-326, "Income inequality and health: A causal review"
+- Kondo et al 2009, BMJ 339:b4471, "Income inequality, mortality, and self-rated health: meta-analysis of multilevel studies"
+
+**Confidence**: medium
+
+**Validation note**: Wilkinson Pickett 'The Spirit Level' e referencia classica. Criticas metodologicas existem (Saunders 2010, Snowdon 2010) mas direcao robusta em meta-analise. Magnitude debatida. Refs: Wilkinson Pickett 2009 Spirit Level; Pickett Wilkinson 2015 Soc Sci Med; Kondo et al 2009 BMJ meta-analysis.
+
+**Nota Etapa 5 (calibração)**: Usar range conservador para magnitude; criticas metodologicas (Saunders 2010, Snowdon 2010) sugerem uncertainty band larga.
+
+### e_133: inequality.gini_intra_block → health.mental_wellbeing
+- **Direção**: negativa | **Magnitude**: medium | **Lag**: 6 turnos | **Scope**: within_block
+
+**Justificativa Rodada 3**: Rodada 3: desigualdade alta correlaciona com pior saúde mental média (Wilkinson)
+
+**Referências validadas (Etapa 2)**:
+- Pickett & Wilkinson 2010, Bloomsbury Press, "Equality: A reader" (chapter on inequality and mental illness)
+- Ribeiro et al 2017, Lancet Psychiatry 4(7):554-562, "Income inequality and mental illness-related morbidity and resilience: a systematic review and meta-analysis"
+- Patel et al 2018, Lancet 392(10157):1553-1598, "The Lancet Commission on global mental health and sustainable development"
+
+**Confidence**: medium
+
+**Validation note**: Pickett Wilkinson 2010 mostra correlacao forte desigualdade-mental illness em paises ricos. Meta-analises confirmam direcao. Magnitude medium defensavel. Refs: Pickett Wilkinson 2010 Equality; Ribeiro et al 2017 Lancet Psychiatry; Patel et al 2018 Lancet.
