@@ -662,3 +662,31 @@ no corpo deste documento. Justificativa inicial vive em `etapa_1_5_note`
 **Confidence**: medium
 
 **Validation note**: Literatura emergente sobre infoxicacao e wellbeing. Magnitude weak honesta — efeito real mas limitado a sub-populacoes altamente expostas. Refs: Bago Rand Pennycook 2020 J Exp Psychol Gen; Sharma et al 2024 PLoS One; APA 2023 Stress in America Report.
+
+### e_128: governance.ai_regulation_maturity → science_rd.breakthroughs_per_year
+- **Direção**: negativa | **Magnitude**: weak | **Lag**: 4 turnos | **Scope**: within_block
+
+**Justificativa Rodada 3**: Rodada 3: regulação retarda (gain-of-function) ou acelera (safety standards = trust = funding)? Genuinamente ambígua.
+
+**Referências validadas (Etapa 2)**:
+- Korinek & Stiglitz 2021, NBER WP 28453, "Artificial Intelligence, Globalization, and Strategies for Economic Development"
+- AI Now Institute 2024, "Annual Report"
+- Engler 2023, Brookings, "The EU and U.S. diverge on AI regulation: A transatlantic comparison and steps to alignment"
+
+**Confidence**: medium
+
+**Validation note**: Debate ativo: regulacao acelera adocao via trust (Korinek Stiglitz 2021) vs retarda gain-of-function. Magnitude weak honesta. Refs: Korinek Stiglitz 2021 NBER WP 28453; AI Now Institute 2024 Annual Report; Engler 2023 Brookings AI regulation tradeoffs.
+
+### e_130: geopolitics.active_conflicts → science_rd.breakthroughs_per_year
+- **Direção**: positiva | **Magnitude**: weak | **Lag**: 4 turnos | **Scope**: global
+
+**Justificativa Rodada 3**: Rodada 3: wars catalisam invenções (radar, internet, GPS) mas desestabilizam pesquisa civil
+
+**Referências validadas (Etapa 2)**:
+- Mowery 2010, Industrial and Corporate Change 19(4):1219-1256, "Military R&D and innovation"
+- Ruttan 2006, Oxford University Press, "Is War Necessary for Economic Growth? Military Procurement and Technology Development"
+- Gross & Sampat 2023, American Economic Review, "America, Jump-Started: World War II R&D and the Takeoff of the U.S. Innovation System"
+
+**Confidence**: medium
+
+**Validation note**: Wars catalisaram radar/internet/GPS (Mowery 2010) mas correlacao fraca quando se controla por periodos (Ruttan 2006). Net effect ambiguo. Refs: Mowery 2010 Industrial Corporate Change; Ruttan 2006 Is War Necessary?; Gross Sampat 2023 AER WWII innovation.
