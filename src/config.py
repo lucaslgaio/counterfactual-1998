@@ -49,7 +49,7 @@ class SimulationConfig(BaseModel):
     )
 
     max_tokens: int = Field(
-        default=2048,
+        default=8192,
         ge=512,
-        description="Max tokens na resposta do LLM.",
+        description="Max tokens na resposta do LLM (inclui thinking + output em modelos 2.5+).",
     )

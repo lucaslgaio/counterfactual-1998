@@ -179,22 +179,32 @@ def simulate_turn(
 
     tool = types.Tool(function_declarations=[_build_function_declaration()])
 
+    # Modelos 2.5+ têm "thinking" ligado por default, que consome tokens do
+    # max_output_tokens antes de chegar na function call. Desligamos pra
+    # não cair em MALFORMED_FUNCTION_CALL por truncamento.
+    generate_config_kwargs: dict[str, Any] = dict(
+        system_instruction=SYSTEM_PROMPT,
+        temperature=config.temperature,
+        max_output_tokens=config.max_tokens,
+        tools=[tool],
+        tool_config=types.ToolConfig(
+            function_calling_config=types.FunctionCallingConfig(
+                mode="ANY",
+                allowed_function_names=["advance_turn"],
+            )
+        ),
+        safety_settings=_SAFETY_SETTINGS,
+    )
+    try:
+        generate_config_kwargs["thinking_config"] = types.ThinkingConfig(thinking_budget=0)
+    except (AttributeError, TypeError):
+        # SDK antiga sem ThinkingConfig — ignora.
+        pass
+
     response = client.models.generate_content(
         model=config.model,
         contents=user_message,
-        config=types.GenerateContentConfig(
-            system_instruction=SYSTEM_PROMPT,
-            temperature=config.temperature,
-            max_output_tokens=config.max_tokens,
-            tools=[tool],
-            tool_config=types.ToolConfig(
-                function_calling_config=types.FunctionCallingConfig(
-                    mode="ANY",
-                    allowed_function_names=["advance_turn"],
-                )
-            ),
-            safety_settings=_SAFETY_SETTINGS,
-        ),
+        config=types.GenerateContentConfig(**generate_config_kwargs),
     )
 
     # Extrai a primeira function_call do candidato
@@ -210,10 +220,32 @@ def simulate_turn(
             break
 
     if function_call is None:
-        raise RuntimeError(
-            f"Gemini não retornou function_call. "
-            f"finish_reason={response.candidates[0].finish_reason if response.candidates else 'n/a'}"
-        )
+        # Diagnóstico detalhado pra debug — mostra o que o modelo realmente retornou.
+        details = []
+        for i, candidate in enumerate(response.candidates or []):
+            details.append(f"  candidate[{i}].finish_reason: {candidate.finish_reason}")
+            content = getattr(candidate, "content", None)
+            parts = getattr(content, "parts", None) if content else None
+            if not parts:
+                details.append(f"  candidate[{i}]: sem content.parts")
+                continue
+            for j, part in enumerate(parts):
+                text = getattr(part, "text", None)
+                fc = getattr(part, "function_call", None)
+                if text:
+                    snippet = text if len(text) < 400 else (text[:400] + "...[truncado]")
+                    details.append(f"  candidate[{i}].part[{j}].text: {snippet!r}")
+                if fc is not None:
+                    details.append(f"  candidate[{i}].part[{j}].function_call: name={fc.name!r}")
+        usage = getattr(response, "usage_metadata", None)
+        if usage:
+            details.append(
+                f"  usage: prompt={getattr(usage, 'prompt_token_count', '?')}, "
+                f"total={getattr(usage, 'total_token_count', '?')}, "
+                f"candidates={getattr(usage, 'candidates_token_count', '?')}, "
+                f"thoughts={getattr(usage, 'thoughts_token_count', '?')}"
+            )
+        raise RuntimeError("Gemini não retornou function_call.\n" + "\n".join(details))
 
     args = _to_plain_dict(function_call.args)
     return TurnResponse.model_validate(args)
