@@ -95,6 +95,14 @@ Automação de tarefas rotineiras intermediárias polariza mercado de trabalho (
 
 Donos de capital de IA capturam parte significativa dos ganhos. Brynjolfsson & McAfee "Race Against the Machine" 2011 [verificar referência exata] argumenta isso explicitamente.
 
+<!-- candidate_references:
+- Acemoglu & Restrepo 2022. "Tasks, Automation, and the Rise in U.S. Wage Inequality". Econometrica 90(5): 1973-2016. [confidence: high — task-displacement explica 50-70% das mudanças na estrutura salarial dos EUA pós-1980; mecanismo central que conecta automation_exposure a desigualdade no topo via concentração de capital]
+- Piketty, Saez & Zucman 2018. "Distributional National Accounts: Methods and Estimates for the United States". Quarterly Journal of Economics 133(2): 553-609. [confidence: high — fato empírico canônico da subida do top1pct desde 1980; documentam que o aumento veio inicialmente de labor income mas é mostly capital income desde 2000, alinhado com mecanismo da edge]
+- Brynjolfsson & McAfee 2011. "Race Against the Machine: How the Digital Revolution is Accelerating Innovation, Driving Productivity, and Irreversibly Transforming Employment and the Economy". Digital Frontier Press, Lexington MA. [confidence: high — referência original citada na justificativa, livro confirmado existir]
+- Moll, Rachel & Restrepo 2022. "Uneven Growth: Automation's Impact on Income and Wealth Inequality". Bank of England Working Paper 913 / NBER. [confidence: medium — conecta explicitamente aumento de automação a concentração de capital ownership no topo; base potencial para calibração do lag e magnitude]
+- Possível dataset: World Inequality Database (wid.world) — séries de top1pct income share por país desde 1900, mantido por Piketty/Saez/Zucman; útil pra calibrar magnitude e lag empiricamente. [confidence: high]
+-->
+
 ### e_011: labor_market.employment_rate → inequality.global_gini
 - **Direção**: negativa | **Magnitude**: medium | **Lag**: 2 turnos | **Scope**: global
 

@@ -58,6 +58,13 @@ def main() -> int:
         print(f"  - {e.id}: {e.source} → {e.target}")
     print()
 
+    print("## Methodological review status (Etapa 2)")
+    validated = sum(1 for e in edges if e.validated)
+    pct = round(100.0 * validated / len(edges), 1) if edges else 0.0
+    print(f"- validated: {validated}/{len(edges)} ({pct}%)")
+    print(f"- pending: {len(edges) - validated}")
+    print()
+
     print("## Lag distribution (turns)")
     lag = Counter(e.lag_turns for e in edges)
     for k in sorted(lag.keys()):

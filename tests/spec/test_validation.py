@@ -77,6 +77,21 @@ def test_full_validation_reports_loop_presence():
         assert report.loops_present.get(loop_name) is True
 
 
+# Etapa 2 — methodological review stats
+
+
+def test_full_validation_reports_validation_progress():
+    """run_full_validation should expose Etapa 2 review stats (informational only)."""
+    report = run_full_validation(SPEC_DIR)
+    assert "edges_validated" in report.stats
+    assert "edges_validated_pct" in report.stats
+    assert isinstance(report.stats["edges_validated"], int)
+    # Currently expected to be 0 (no edges reviewed yet) but the validator
+    # only requires the key to be present; we don't assert the value.
+    assert report.stats["edges_validated"] >= 0
+    assert 0.0 <= report.stats["edges_validated_pct"] <= 100.0
+
+
 def test_central_loops_detect_missing():
     """If a required edge is missing, the validator should flag it."""
     # Build a small fake DAG with only some of the required edges

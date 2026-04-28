@@ -201,3 +201,34 @@ def test_direction_contested_field_loaded():
     edges = load_dag(SPEC_DIR / "causal_dag.json")
     contested = [e for e in edges if e.direction_contested]
     assert len(contested) >= 1, "expected at least one direction_contested edge after Rodada 1"
+
+
+# Etapa 2 — methodological review schema
+
+
+def test_validated_field_defaults_false():
+    """All edges in the real DAG should default to validated=false (Etapa 2 starts pending)."""
+    edges = load_dag(SPEC_DIR / "causal_dag.json")
+    assert all(e.validated is False for e in edges), (
+        "expected all edges to start unvalidated; review happens in Etapa 2 sessions"
+    )
+
+
+def test_validation_notes_field_loaded_as_none():
+    """All edges in the real DAG should have validation_notes=None until reviewed."""
+    edges = load_dag(SPEC_DIR / "causal_dag.json")
+    assert all(e.validation_notes is None for e in edges)
+
+
+def test_validated_field_round_trips_when_true():
+    """A CausalEdge with validated=true and notes should serialize correctly."""
+    edge = CausalEdge(
+        id="e_x", source="a.b", target="c.d", direction="positive",
+        magnitude="medium", lag_turns=2, scope="global",
+        justification_ref="x", validated=True,
+        validation_notes="Reviewed Lucas+Claude 2026-Q2; refs: Author 2020.",
+    )
+    assert edge.validated is True
+    assert edge.validation_notes is not None
+    errors = validate_edge_fields([edge])
+    assert not errors

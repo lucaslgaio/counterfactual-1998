@@ -39,6 +39,8 @@ class CausalEdge:
     is_self_loop: bool = False
     aggregation: Optional[str] = None
     direction_contested: bool = False
+    validated: bool = False
+    validation_notes: Optional[str] = None
 
     @property
     def base_source(self) -> str:
@@ -93,6 +95,8 @@ def load_dag(path: Path) -> List[CausalEdge]:
             is_self_loop=bool(e.get("is_self_loop", False)),
             aggregation=e.get("aggregation"),
             direction_contested=bool(e.get("direction_contested", False)),
+            validated=bool(e.get("validated", False)),
+            validation_notes=e.get("validation_notes"),
         ))
     return edges
 

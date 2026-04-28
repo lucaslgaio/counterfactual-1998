@@ -164,5 +164,12 @@ def run_full_validation(spec_dir: Path = SPEC_DIR_DEFAULT) -> ValidationReport:
     report.stats["spillover_pairs"] = len(blocks_spec.spillover_friction)
     report.stats["central_loops_present"] = sum(1 for v in report.loops_present.values() if v)
     report.stats["central_loops_total"] = len(CENTRAL_LOOPS)
+    # Etapa 2 — informational: % of edges that have been methodologically reviewed.
+    # Does not block validation; just reports progress.
+    validated_count = sum(1 for e in edges if e.validated)
+    report.stats["edges_validated"] = validated_count
+    report.stats["edges_validated_pct"] = (
+        round(100.0 * validated_count / len(edges), 1) if edges else 0.0
+    )
 
     return report
