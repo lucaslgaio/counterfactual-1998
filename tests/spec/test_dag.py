@@ -206,18 +206,26 @@ def test_direction_contested_field_loaded():
 # Etapa 2 — methodological review schema
 
 
-def test_validated_field_defaults_false():
-    """All edges in the real DAG should default to validated=false (Etapa 2 starts pending)."""
+def test_validated_field_invariants():
+    """Etapa 2 invariants: validated=true edges must have non-null confidence
+    and non-null notes; validated=false edges must have null both."""
     edges = load_dag(SPEC_DIR / "causal_dag.json")
-    assert all(e.validated is False for e in edges), (
-        "expected all edges to start unvalidated; review happens in Etapa 2 sessions"
-    )
-
-
-def test_validation_notes_field_loaded_as_none():
-    """All edges in the real DAG should have validation_notes=None until reviewed."""
-    edges = load_dag(SPEC_DIR / "causal_dag.json")
-    assert all(e.validation_notes is None for e in edges)
+    for e in edges:
+        if e.validated:
+            assert e.validation_confidence in {"high", "medium", "low"}, (
+                f"{e.id}: validated=true requires confidence in high/medium/low, "
+                f"got {e.validation_confidence!r}"
+            )
+            assert e.validation_notes is not None and e.validation_notes != "", (
+                f"{e.id}: validated=true requires non-empty validation_notes"
+            )
+        else:
+            assert e.validation_confidence is None, (
+                f"{e.id}: validated=false but confidence is {e.validation_confidence!r}"
+            )
+            assert e.validation_notes is None, (
+                f"{e.id}: validated=false but validation_notes is set"
+            )
 
 
 def test_validated_field_round_trips_when_true():

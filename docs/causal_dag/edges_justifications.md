@@ -44,6 +44,15 @@ A capacidade de fronteira da IA expande o conjunto de tarefas economicamente aut
 
 **A validar**: magnitude "strong" vs. possível "medium" se considerarmos fricção de adoção institucional; lag de 2 turnos (1 ano) pode subestimar.
 
+**Referências validadas (Etapa 2)**:
+- Acemoglu & Restrepo 2022, Econometrica 90(5):1973-2016, "Tasks, Automation, and the Rise in U.S. Wage Inequality"
+- McKinsey Global Institute 2024, "AI in the Workplace"
+- Brynjolfsson, Rock & Syverson 2021, AEJ: Macroeconomics 13(1):333-72, "The Productivity J-Curve: How Intangibles Complement General Purpose Technologies"
+
+**Confidence**: high
+
+**Validation note**: Mecanismo central do framework Acemoglu/Restrepo task displacement. Magnitude strong consistente. Lag 2 (1 ano) e prazo tipico tech-to-deployment. Refs: Acemoglu Restrepo 2022 Econometrica; McKinsey Global Institute 2024; Brynjolfsson Rock Syverson 2021 AEJ Macro.
+
 ### e_002: ai_capability.population_penetration → labor_market.employment_rate
 - **Direção**: negativa | **Magnitude**: medium | **Lag**: 4 turnos | **Scope**: within_block
 
@@ -90,10 +99,28 @@ Penetração maior cria demanda por trabalhadores que treinam, mantêm, customiz
 
 Automação de tarefas rotineiras intermediárias polariza mercado de trabalho (alta-skilled e low-skilled crescem; middle encolhe), aumentando Gini. Autor (2014) "Skill Mismatch" e Autor & Dorn (2013) documentam.
 
-### e_010: labor_market.automation_exposure → inequality.top1pct_share
-- **Direção**: positiva | **Magnitude**: medium | **Lag**: 4 turnos | **Scope**: global
+**Referências validadas (Etapa 2)**:
+- Acemoglu & Restrepo 2022, Econometrica 90(5):1973-2016, "Tasks, Automation, and the Rise in U.S. Wage Inequality"
+- BIS Working Paper 1135 2024, "Automation, labor share and AI"
+- IMF Staff Discussion Note 2024, "Gen AI: Artificial Intelligence and the Future of Work"
 
-Donos de capital de IA capturam parte significativa dos ganhos. Brynjolfsson & McAfee "Race Against the Machine" 2011 [verificar referência exata] argumenta isso explicitamente.
+**Confidence**: high
+
+**Validation note**: Magnitude strong robusta; 50-70% da variancia salarial US 1980-2016 explicada por task displacement. Heterogeneidade entre blocos (forte US/EU, mais fraca CN/RoW pre-2010). Refs: Acemoglu & Restrepo 2022 Econometrica; BIS WP 1135 2024; IMF SDN 2024 Gen AI.
+
+### e_010: labor_market.automation_exposure → inequality.top1pct_share
+- **Direção**: positiva | **Magnitude**: medium | **Lag**: 6 turnos | **Scope**: global
+
+Donos de capital de IA capturam parte significativa dos ganhos. Brynjolfsson & McAfee "Race Against the Machine" 2011 argumenta isso explicitamente.
+
+**Referências validadas (Etapa 2)**:
+- Piketty, Saez & Zucman 2018, NBER WP 22945 / QJE 133(2):553-609, "Distributional National Accounts: Methods and Estimates for the United States"
+- Moll, Rachel & Restrepo 2025, "Uneven Growth: Automation's Impact on Income and Wealth Inequality"
+- Alvaredo, Atkinson, Piketty & Saez 2013, Journal of Economic Perspectives 27(3):3-20, "The Top 1 Percent in International and Historical Perspective"
+
+**Confidence**: medium
+
+**Validation note**: Direcao robusta via 3 canais (capital share, entrepreneurial returns, CEO bargaining). Magnitude heterogenea por bloco — forte em US/UK, fraca em Japao/Alemanha/Nordicos. Lag 4->6 pq top share reage mais lento que gini geral. Refs: Piketty Saez Zucman 2018 NBER; Moll Rachel Restrepo 2025; Alvaredo et al 2013 JEP.
 
 <!-- candidate_references:
 - Acemoglu & Restrepo 2022. "Tasks, Automation, and the Rise in U.S. Wage Inequality". Econometrica 90(5): 1973-2016. [confidence: high — task-displacement explica 50-70% das mudanças na estrutura salarial dos EUA pós-1980; mecanismo central que conecta automation_exposure a desigualdade no topo via concentração de capital]
@@ -200,6 +227,15 @@ Regulação efetiva de plataformas + obrigatoriedade de disclosure de IA reduz d
 - **Direção**: negativa | **Magnitude**: forte | **Lag**: 1 turno | **Scope**: global
 
 Imediato: mais desinfo no ecossistema → confusão sobre o que é confiável → trust em mídia tradicional cai (junto com tudo). Forma sigmoid porque trust tem floor.
+
+**Referências validadas (Etapa 2)**:
+- Allcott & Gentzkow 2017, Journal of Economic Perspectives 31(2):211-236, "Social Media and Fake News in the 2016 Election"
+- Edelman 2017-2024, longitudinal, "Edelman Trust Barometer"
+- Newman et al 2024, Reuters Institute, "Digital News Report 2024"
+
+**Confidence**: high
+
+**Validation note**: Canal estabelecido empiricamente. Edelman Trust Barometer cai monotonicamente em paises com exposicao alta a fake news (US, Brasil, Polonia 2016+). Magnitude strong robusta. Refs: Allcott Gentzkow 2017 J Econ Perspectives; Edelman Trust Barometer 2017-2024 longitudinal; Newman et al 2024 Reuters Digital News Report.
 
 ### e_029: ai_capability.population_penetration → information_ecosystem.disinformation_level
 - **Direção**: positiva | **Magnitude**: medium | **Lag**: 4 turnos | **Scope**: within_block
@@ -431,6 +467,15 @@ Auto-saturação: à medida que penetration aproxima do teto, taxa de cresciment
 - **Direção**: negativa | **Magnitude**: forte | **Lag**: 0 turnos | **Scope**: global
 
 Risk ↑ → markets ↓ imediatamente. Lag-0.
+
+**Referências validadas (Etapa 2)**:
+- Brunnermeier 2009, Journal of Economic Perspectives 23(1):77-100, "Deciphering the Liquidity and Credit Crunch 2007-2008"
+- Adrian & Brunnermeier 2016, American Economic Review 106(7):1705-41, "CoVaR"
+- Bernanke 2018, FRBSF Brookings Paper, "The Real Effects of the Financial Crisis"
+
+**Confidence**: high
+
+**Validation note**: Edge mais empiricamente robusta do DAG. Cada crise sistemica documentada (1987, 1998 LTCM, 2000 dotcom, 2008 GFC, 2020 COVID, 2023 SVB) deprime mercados em tempo real. Refs: Brunnermeier 2009 J Econ Perspectives; Adrian Brunnermeier 2016 AER (CoVaR); Bernanke 2018 FRBSF.
 
 ### e_076: financial_markets.global_index → financial_markets.systemic_risk
 - **Direção**: positiva | **Magnitude**: weak | **Lag**: 6 turnos | **Scope**: global
