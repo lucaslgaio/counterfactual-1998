@@ -1,0 +1,149 @@
+{
+  "_meta": {
+    "draft": true,
+    "description": "Definição dos 4 blocos geográficos e da matriz de fricção de spillover entre eles. Initial state values são DRAFT — refletem aproximação plausível para 1998. Validar contra Banco Mundial / Maddison.",
+    "block_ids": ["US", "EU", "CN", "RoW"]
+  },
+  "blocks": [
+    {
+      "id": "US",
+      "name": "Estados Unidos",
+      "scope": "Estados Unidos da América (apenas)",
+      "population_share_1998": 0.045,
+      "gdp_share_1998": 0.30,
+      "tech_capacity_1998": 1.0,
+      "internet_penetration_1998": 0.36,
+      "rd_spending_share_1998": 0.42,
+      "draft": true,
+      "notes": "Hegemon tecnológico em 1998. Maior PIB nominal (~30%), maior gasto em P&D, base de infraestrutura digital."
+    },
+    {
+      "id": "EU",
+      "name": "União Europeia + Reino Unido",
+      "scope": "Estados-membros da UE em 1998 + Reino Unido + Suíça + Noruega",
+      "population_share_1998": 0.078,
+      "gdp_share_1998": 0.28,
+      "tech_capacity_1998": 0.78,
+      "internet_penetration_1998": 0.18,
+      "rd_spending_share_1998": 0.27,
+      "draft": true,
+      "notes": "Capacidade tecnológica e científica forte, mas industria de tech mais fragmentada que EUA. Pioneira em regulação."
+    },
+    {
+      "id": "CN",
+      "name": "China continental",
+      "scope": "República Popular da China (sem Taiwan, sem Hong Kong)",
+      "population_share_1998": 0.211,
+      "gdp_share_1998": 0.069,
+      "tech_capacity_1998": 0.30,
+      "internet_penetration_1998": 0.002,
+      "rd_spending_share_1998": 0.05,
+      "draft": true,
+      "notes": "Em 1998, ainda em fase inicial de abertura. PIB pequeno em USD nominal. Capacidade tech nascente. Crescerá rapidamente."
+    },
+    {
+      "id": "RoW",
+      "name": "Resto do Mundo",
+      "scope": "Todos os outros países: América Latina (Brasil, México, Argentina, etc.), África, Oriente Médio, Sul/Sudeste Asiático (incluindo Índia), Coreia do Sul, Japão, Taiwan, Hong Kong, Austrália, Canadá, Rússia",
+      "population_share_1998": 0.666,
+      "gdp_share_1998": 0.351,
+      "tech_capacity_1998": 0.40,
+      "internet_penetration_1998": 0.05,
+      "rd_spending_share_1998": 0.26,
+      "draft": true,
+      "notes": "Bloco residual heterogêneo. Inclui economias avançadas (Japão, Coreia, Taiwan, Canadá, Austrália) e emergentes/em desenvolvimento. Granularidade limitada — Etapa 2+ pode separar Japão/Coreia/Taiwan se necessário. tech_capacity é média ponderada."
+    }
+  ],
+  "spillover_friction_matrix": {
+    "_description": "Friction de spillover (0-1, onde 1.0 = sem fricção, transferência total; 0 = isolamento). Modulators são métricas que ajustam a fricção a cada turno.",
+    "US_to_EU": {
+      "base": 0.7,
+      "modulators": [
+        {"factor": "geopolitics.bilateral_tensions.US_EU", "coefficient": -0.4},
+        {"factor": "ai_regulation_diff_US_EU", "coefficient": -0.2}
+      ],
+      "draft": true
+    },
+    "US_to_CN": {
+      "base": 0.4,
+      "modulators": [
+        {"factor": "geopolitics.bilateral_tensions.US_CN", "coefficient": -0.7},
+        {"factor": "export_controls_active", "coefficient": -0.5}
+      ],
+      "draft": true
+    },
+    "US_to_RoW": {
+      "base": 0.5,
+      "modulators": [
+        {"factor": "geopolitics.bilateral_tensions.US_RoW", "coefficient": -0.3},
+        {"factor": "education.mean_years_schooling", "coefficient": 0.2}
+      ],
+      "draft": true
+    },
+    "EU_to_US": {
+      "base": 0.7,
+      "modulators": [
+        {"factor": "geopolitics.bilateral_tensions.US_EU", "coefficient": -0.4}
+      ],
+      "draft": true
+    },
+    "EU_to_CN": {
+      "base": 0.5,
+      "modulators": [
+        {"factor": "geopolitics.bilateral_tensions.EU_CN", "coefficient": -0.5}
+      ],
+      "draft": true
+    },
+    "EU_to_RoW": {
+      "base": 0.55,
+      "modulators": [
+        {"factor": "education.mean_years_schooling", "coefficient": 0.2}
+      ],
+      "draft": true
+    },
+    "CN_to_US": {
+      "base": 0.35,
+      "modulators": [
+        {"factor": "geopolitics.bilateral_tensions.US_CN", "coefficient": -0.7}
+      ],
+      "draft": true
+    },
+    "CN_to_EU": {
+      "base": 0.45,
+      "modulators": [
+        {"factor": "geopolitics.bilateral_tensions.EU_CN", "coefficient": -0.5}
+      ],
+      "draft": true
+    },
+    "CN_to_RoW": {
+      "base": 0.6,
+      "modulators": [
+        {"factor": "geopolitics.bilateral_tensions.CN_RoW", "coefficient": -0.4}
+      ],
+      "draft": true
+    },
+    "RoW_to_US": {
+      "base": 0.4,
+      "modulators": [],
+      "draft": true
+    },
+    "RoW_to_EU": {
+      "base": 0.45,
+      "modulators": [],
+      "draft": true
+    },
+    "RoW_to_CN": {
+      "base": 0.55,
+      "modulators": [
+        {"factor": "geopolitics.bilateral_tensions.CN_RoW", "coefficient": -0.4}
+      ],
+      "draft": true
+    }
+  },
+  "bass_diffusion_defaults": {
+    "_description": "Parâmetros default Bass para spillover de adoção (e.g., population_penetration). Calibração real é Etapa 5.",
+    "p_innovation": 0.005,
+    "q_imitation": 0.4,
+    "draft": true
+  }
+}
