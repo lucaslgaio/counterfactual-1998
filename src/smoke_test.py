@@ -436,6 +436,8 @@ def run(num_turns: int, auto: bool, seed: Optional[int], show_manual_flag: bool)
         metric_history[key].append(state_metric_value(state, key))
 
     user_input_for_next: Optional[str] = None
+    # Quantos turnos rodar antes do próximo prompt. 0 = prompt no fim deste turno.
+    batch_remaining: int = 0
 
     for i in range(num_turns):
         event = events.get(state.turn)
@@ -468,26 +470,46 @@ def run(num_turns: int, auto: bool, seed: Optional[int], show_manual_flag: bool)
         for key in METRICS:
             metric_history[key].append(state_metric_value(state, key))
 
-        # Painel cumulativo após cada turno (não no último — quem fecha é show_outro).
-        if i < num_turns - 1:
-            show_progress(
-                console,
-                initial_state,
-                state,
-                metric_history,
-                label=f"estado do mundo até {previous_turn}",
-                top_n=6,
-            )
+        is_last_turn = i == num_turns - 1
+        if is_last_turn:
+            continue  # show_outro fecha tudo abaixo
 
-        if i < num_turns - 1 and not auto:
-            console.print()
-            try:
-                raw = console.input(
-                    "[dim]→ Enter para próximo turno  ·  ou digite uma diretriz:[/dim] "
-                )
-            except EOFError:
-                raw = ""
-            user_input_for_next = raw.strip() or None
+        # No meio de um batch: pula painel e prompt, vai pro próximo turno.
+        if batch_remaining > 0:
+            batch_remaining -= 1
+            continue
+
+        # Fim do batch (ou nenhum batch ativo) — mostra painel cumulativo.
+        show_progress(
+            console,
+            initial_state,
+            state,
+            metric_history,
+            label=f"estado do mundo até {previous_turn}",
+            top_n=6,
+        )
+
+        if auto:
+            continue
+
+        console.print()
+        try:
+            raw = console.input(
+                "[dim]→ Enter (1 turno)  ·  número (rodar N turnos)  ·  texto (diretriz):[/dim] "
+            )
+        except EOFError:
+            raw = ""
+        raw = raw.strip()
+
+        if not raw:
+            user_input_for_next = None
+        elif raw.isdigit():
+            n = int(raw)
+            if n >= 1:
+                batch_remaining = n - 1
+            user_input_for_next = None
+        else:
+            user_input_for_next = raw
 
     show_outro(console, initial_state, state, metric_history, num_turns)
 
