@@ -135,7 +135,7 @@ class CausalLink(BaseModel):
 
 class TurnResponse(BaseModel):
     narrative: str = Field(description="80-200 palavras descrevendo o que aconteceu neste semestre.")
-    key_developments: list[str] = Field(min_length=2, max_length=4)
+    key_developments: list[str] = Field(min_length=1, max_length=10)
     event_outcome: EventOutcome
     event_outcome_explanation: Optional[str] = None
     deltas: dict[str, float] = Field(default_factory=dict)

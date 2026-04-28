@@ -43,7 +43,7 @@ def _build_function_declaration() -> dict:
                 "key_developments": {
                     "type": "ARRAY",
                     "items": {"type": "STRING"},
-                    "description": "2 a 4 highlights curtos do semestre.",
+                    "description": "3 a 6 highlights curtos do semestre, idealmente.",
                 },
                 "event_outcome": {
                     "type": "STRING",
