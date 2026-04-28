@@ -175,6 +175,8 @@ def simulate_turn(
     user_input: Optional[str],
     narrative_history: list,
     config: SimulationConfig,
+    discourse_seeds: Optional[list] = None,
+    sociological_lens: Optional[str] = None,
 ) -> TurnResponse:
     """Executa um turno: chama o Gemini com function calling forçado, retorna TurnResponse validada."""
     user_message = build_user_message(
@@ -184,6 +186,8 @@ def simulate_turn(
         user_input=user_input,
         narrative_history=narrative_history,
         config=config,
+        discourse_seeds=discourse_seeds,
+        sociological_lens=sociological_lens,
     )
 
     tool = types.Tool(function_declarations=[_build_function_declaration()])

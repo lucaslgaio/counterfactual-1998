@@ -23,6 +23,7 @@ from rich.table import Table
 from rich.text import Text
 
 from src.config import SimulationConfig
+from src.discourse import lens_for_turn, seeds_for_turn
 from src.glossary import METRICS, METRICS_LIST, metrics_by_cluster
 from src.llm import get_client, simulate_turn
 from src.models import (
@@ -239,6 +240,33 @@ def show_turn_header(
         console.print("[dim]  (semestre sem eventos âncora nem choques exógenos)[/dim]")
 
 
+def show_lens_and_seeds(console: Console, lens: str, seeds: list) -> None:
+    """Mostra a lente sociológica e as sementes de debate injetadas neste turno."""
+    if not lens and not seeds:
+        return
+
+    body_lines = []
+    if lens:
+        body_lines.append(f"[bold]lente:[/bold] {lens}")
+    if seeds:
+        if body_lines:
+            body_lines.append("")
+        body_lines.append("[bold]sementes injetadas:[/bold]")
+        for s in seeds:
+            year = s.get("year", "?")
+            domain = s.get("domain", "")
+            text = s.get("text", "")
+            body_lines.append(f"  [dim]({year} · {domain})[/dim] {text}")
+
+    body = "\n".join(body_lines)
+    console.print(Panel(
+        body,
+        title="[dim]matéria-prima sociológica deste turno[/dim]",
+        border_style="dim",
+        padding=(0, 2),
+    ))
+
+
 def show_response(console: Console, response: TurnResponse, state: State) -> None:
     """Narrativa, key developments, event outcome, deltas (com unidade) e árvore causal."""
     console.print()
@@ -442,8 +470,11 @@ def run(num_turns: int, auto: bool, seed: Optional[int], show_manual_flag: bool)
     for i in range(num_turns):
         event = events.get(state.turn)
         shock = maybe_generate_shock(state.turn, config)
+        seeds = seeds_for_turn(state.turn, config.seed)
+        lens = lens_for_turn(state.turn, config.seed)
 
         show_turn_header(console, state, event, shock, i + 1, num_turns)
+        show_lens_and_seeds(console, lens, seeds)
 
         with console.status(
             f"[cyan]o motor causal está raciocinando sobre {state.turn}...[/cyan]",
@@ -457,6 +488,8 @@ def run(num_turns: int, auto: bool, seed: Optional[int], show_manual_flag: bool)
                 user_input=user_input_for_next,
                 narrative_history=narrative_history,
                 config=config,
+                discourse_seeds=seeds,
+                sociological_lens=lens,
             )
 
         show_response(console, response, state)
