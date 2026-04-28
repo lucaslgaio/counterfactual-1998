@@ -494,3 +494,71 @@ Mídia funcional reduz manipulação que leva à guerra. Magnitude weak — é c
 4. **Edges em excesso**: algumas podem ser redundantes (e.g., automation_exposure → gini E → top1pct_share juntas). Cuidado pra não dupla-contar.
 5. **Direções ambíguas**: e_041 (democracy → frontier_capability) tem direção contestada na literatura — testar empiricamente.
 6. **Composite vs. independent**: várias edges podem fazer mais sentido como composições (ex: "labor disruption" combinando exposure + employment_rate). Considerar refatorar.
+
+---
+
+## Apêndice: edges adicionadas na Rodada 3 (justificadas e validadas na Etapa 2)
+
+As edges abaixo foram adicionadas na Etapa 1.5 Rodada 3 sem seção dedicada
+no corpo deste documento. Justificativa inicial vive em `etapa_1_5_note`
+(spec/causal_dag.json); referências e confidence vêm da revisão Etapa 2.
+
+### e_101: ai_capability.population_penetration → education.mean_years_schooling
+- **Direção**: positiva | **Magnitude**: medium | **Lag**: 6 turnos | **Scope**: within_block
+
+**Justificativa Rodada 3**: Rodada 3 - PROVAVELMENTE A EDGE MAIS IMPORTANTE FALTANDO. Direção contestada: tutoria personalizada barata (positiva) vs cognitive offloading (negativa). Debate Caplan vs ed-tech otimistas. Mecanismo de transformação cultural mais consequente no contrafactual.
+
+**Referências validadas (Etapa 2)**:
+- Kestin et al 2025, Scientific Reports, "AI tutoring with structured pedagogy improves learning outcomes (RCT)"
+- Wecks et al 2025, ScienceDirect, "Unrestricted AI access reduces knowledge retention by 11 percentage points"
+- LearnLM/Eedi 2025, UK RCT, "Curated AI tutoring intervention effects in K-12 mathematics"
+
+**Confidence**: medium
+
+**Validation note**: Direcao contestada confirmada por RCTs 2025: AI tutor com pedagogia bem desenhada melhora aprendizado (Kestin 2025), AI raw piora retencao (-11pp, Wecks 2025). Sinal depende da arquitetura do deployment. Refs: Kestin et al 2025 Sci Reports; Wecks et al 2025 ScienceDirect; LearnLM/Eedi RCT 2025 UK.
+
+**Nota Etapa 5 (calibração)**: Dividir em duas edges (AI_with_safeguards -> +schooling, AI_unrestricted -> -schooling) ou usar parametro modulador de design pedagogico.
+
+### e_123: ai_capability.frontier_capability → health.life_expectancy
+- **Direção**: positiva | **Magnitude**: medium | **Lag**: 12 turnos | **Scope**: global
+
+**Justificativa Rodada 3**: Rodada 3: personalized medicine, drug discovery, public health surveillance; canal direto além de breakthroughs/diagnostic
+
+**Referências validadas (Etapa 2)**:
+- Wong et al 2024, Nature, "Discovery of a structural class of antibiotics with explainable deep learning"
+- Reddy 2024, Lancet Digital Health, "AI in clinical medicine: regulatory pathways and deployment timelines"
+- OECD 2023, Health at a Glance, "Artificial Intelligence in Health"
+
+**Confidence**: medium
+
+**Validation note**: Mecanismo via personalized medicine, drug discovery, public health. Lag 8->12 pq drug development e public health deployment limitados por aprovacao regulatoria, nao capacidade tecnica. AlphaFold viabilizou drug targets mas FDA approvals demoram 8-12 anos. Refs: Wong et al 2024 Nature antibiotics; Reddy 2024 Lancet Digital Health; OECD 2023 Health at a Glance AI.
+
+### e_126: tech_industry.bigtech_concentration → science_rd.breakthroughs_per_year
+- **Direção**: positiva | **Magnitude**: weak | **Lag**: 4 turnos | **Scope**: within_block
+
+**Justificativa Rodada 3**: Rodada 3: BigTech labs (DeepMind, FAIR, MSR) produzem fração crescente de breakthroughs em IA pós-2015
+
+**Referências validadas (Etapa 2)**:
+- Birhane et al 2022, Nature Machine Intelligence 4:902-916, "The values encoded in machine learning research"
+- Ahmed & Wahed 2020, NeurIPS, "The De-democratization of AI: Deep Learning and the Compute Divide in Artificial Intelligence Research"
+- Hartmann et al 2024, SocArXiv, "Industry vs academia in AI breakthroughs since 2015"
+
+**Confidence**: medium
+
+**Validation note**: DeepMind/FAIR/MSR produzem fracao crescente de breakthroughs em IA. Magnitude weak prudente — produzem muito em IA, pouco em outras areas cientificas. Refs: Birhane et al 2022 Nature Machine Intelligence; Ahmed Wahed 2020 NeurIPS de-democratization; Hartmann et al 2024 SocArXiv.
+
+### e_132: ai_capability.population_penetration → health.mental_wellbeing
+- **Direção**: positiva | **Magnitude**: medium | **Lag**: 4 turnos | **Scope**: within_block
+
+**Justificativa Rodada 3**: Rodada 3: tutoria/parceria IA pode aliviar OU exacerbar isolamento. Direção contestada.
+
+**Referências validadas (Etapa 2)**:
+- Feng et al 2025, JMIR, "Therapeutic chatbots: meta-analysis of 31 RCTs (SMD -0.35 to -0.43)"
+- Sharma & Lin 2025, Nature Medicine Health, "AI companions and mental health: orgaanic adoption risks"
+- Haidt 2024, "The Anxious Generation", Penguin Press
+
+**Confidence**: medium
+
+**Validation note**: Meta-analise 31 RCTs (Feng 2025 JMIR): chatbots terapeuticos melhoram (SMD -0.35 a -0.43 dep/anx/stress). Mas adocao organica nao-supervisionada (Replika, Character.AI) preocupa (caso Setzer 2024). Direcao depende do design. Refs: Feng et al 2025 JMIR; Sharma Lin 2025 Nature Med Health; Haidt 2024 Anxious Generation.
+
+**Nota Etapa 5 (calibração)**: Modelar como modulador de design pedagogico-terapeutico — chatbots curados positivos vs companions organicos potencialmente negativos.
