@@ -562,3 +562,31 @@ no corpo deste documento. Justificativa inicial vive em `etapa_1_5_note`
 **Validation note**: Meta-analise 31 RCTs (Feng 2025 JMIR): chatbots terapeuticos melhoram (SMD -0.35 a -0.43 dep/anx/stress). Mas adocao organica nao-supervisionada (Replika, Character.AI) preocupa (caso Setzer 2024). Direcao depende do design. Refs: Feng et al 2025 JMIR; Sharma Lin 2025 Nature Med Health; Haidt 2024 Anxious Generation.
 
 **Nota Etapa 5 (calibração)**: Modelar como modulador de design pedagogico-terapeutico — chatbots curados positivos vs companions organicos potencialmente negativos.
+
+### e_124: labor_market.employment_rate → health.life_expectancy
+- **Direção**: positiva | **Magnitude**: weak | **Lag**: 8 turnos | **Scope**: within_block
+
+**Justificativa Rodada 3**: Rodada 3: stress de desemprego, perda de healthcare nos US, deaths of despair (Case & Deaton); volta corrigida do e_083 removido
+
+**Referências validadas (Etapa 2)**:
+- Case & Deaton 2020, Princeton University Press, "Deaths of Despair and the Future of Capitalism"
+- Case & Deaton 2021, PNAS 118(11), "Life expectancy in adulthood is falling for those without a BA degree"
+- Ruhm 2024, PMC, "Are recessions good or bad for health? A reassessment of the business cycle and mortality literature"
+
+**Confidence**: medium
+
+**Validation note**: Mecanismo deaths of despair forte em US (Case Deaton), quase nulo em economias com welfare states robustos. Scope alterado para within_block dada heterogeneidade radical. Refs: Case Deaton 2020 Princeton; Case Deaton 2021 PNAS; Ruhm 2024 PMC business cycle.
+
+### e_129: financial_markets.global_index → science_rd.publications_index
+- **Direção**: positiva | **Magnitude**: weak | **Lag**: 4 turnos | **Scope**: global
+
+**Justificativa Rodada 3**: Rodada 3: mercados em alta → corporate R&D → publicações
+
+**Referências validadas (Etapa 2)**:
+- Brown, Fazzari & Petersen 2009, Journal of Finance 64(1):151-185, "Financing Innovation and Growth: Cash Flow, External Equity, and the 1990s R&D Boom"
+- National Science Board Indicators (annual), "Science and Engineering Indicators"
+- Hall & Lerner 2010, Handbook of the Economics of Innovation, "The Financing of R&D and Innovation"
+
+**Confidence**: medium
+
+**Validation note**: Corporate R&D budgets correlam com market valuations. Magnitude weak honesta — corporate R&D e ~30% do R&D global, balance publico dominante. Refs: Brown Fazzari Petersen 2009 J Finance; National Science Board Indicators (annual); Hall Lerner 2010 Handbook.
