@@ -100,6 +100,62 @@
     {"edge_id": "e_084", "form": "log_linear", "parameters": {"alpha": 0.5, "beta": 5.0}, "clamp_to_range": true, "draft": true},
     {"edge_id": "e_085", "form": "linear", "parameters": {"alpha": -0.4, "beta": null}, "clamp_to_range": true, "draft": true},
 
-    {"edge_id": "e_086", "form": "linear", "parameters": {"alpha": -0.5, "beta": null}, "clamp_to_range": true, "draft": true}
+    {"edge_id": "e_086", "form": "linear", "parameters": {"alpha": -0.5, "beta": null}, "clamp_to_range": true, "draft": true},
+
+    {"edge_id": "e_088", "form": "linear", "parameters": {"alpha": -0.05, "beta": null}, "clamp_to_range": true, "draft": true},
+    {"edge_id": "e_089", "form": "linear", "parameters": {"alpha": -0.04, "beta": null}, "clamp_to_range": true, "draft": true},
+    {"edge_id": "e_090", "form": "linear", "parameters": {"alpha": -0.015, "beta": null}, "clamp_to_range": true, "draft": true},
+    {"edge_id": "e_091", "form": "log_linear", "parameters": {"alpha": 0.4, "beta": 5.0}, "clamp_to_range": true, "draft": true},
+    {"edge_id": "e_092", "form": "linear", "parameters": {"alpha": 0.04, "beta": null}, "clamp_to_range": true, "draft": true},
+    {"edge_id": "e_093", "form": "linear", "parameters": {"alpha": -0.02, "beta": null}, "clamp_to_range": true, "draft": true},
+    {"edge_id": "e_094", "form": "linear", "parameters": {"alpha": -0.06, "beta": null}, "clamp_to_range": true, "draft": true},
+
+    {"edge_id": "e_095", "form": "linear", "parameters": {"alpha": 0.5, "beta": null}, "clamp_to_range": true, "draft": true},
+    {"edge_id": "e_096", "form": "linear", "parameters": {"alpha": 0.04, "beta": null}, "clamp_to_range": true, "draft": true},
+    {"edge_id": "e_097", "form": "linear", "parameters": {"alpha": 0.04, "beta": null}, "clamp_to_range": true, "draft": true},
+    {"edge_id": "e_098", "form": "linear", "parameters": {"alpha": 0.3, "beta": null}, "clamp_to_range": true, "draft": true},
+    {"edge_id": "e_099", "form": "linear", "parameters": {"alpha": 0.5, "beta": null}, "clamp_to_range": true, "draft": true},
+    {"edge_id": "e_100", "form": "linear", "parameters": {"alpha": -0.05, "beta": null}, "clamp_to_range": true, "draft": true},
+
+    {"edge_id": "e_101", "form": "linear", "parameters": {"alpha": 0.05, "beta": null}, "clamp_to_range": true, "draft": true},
+    {"edge_id": "e_102", "form": "linear", "parameters": {"alpha": 0.005, "beta": null}, "clamp_to_range": true, "draft": true},
+    {"edge_id": "e_103", "form": "linear", "parameters": {"alpha": 0.5, "beta": null}, "clamp_to_range": true, "draft": true},
+    {"edge_id": "e_104", "form": "linear", "parameters": {"alpha": 0.5, "beta": null}, "clamp_to_range": true, "draft": true},
+    {"edge_id": "e_105", "form": "linear", "parameters": {"alpha": 0.04, "beta": null}, "clamp_to_range": true, "draft": true},
+    {"edge_id": "e_106", "form": "linear", "parameters": {"alpha": 0.0008, "beta": null}, "clamp_to_range": true, "draft": true},
+
+    {"edge_id": "e_107", "form": "linear", "parameters": {"alpha": -0.04, "beta": null}, "clamp_to_range": true, "draft": true},
+    {"edge_id": "e_108", "form": "linear", "parameters": {"alpha": 0.05, "beta": null}, "clamp_to_range": true, "draft": true},
+    {"edge_id": "e_109", "form": "linear", "parameters": {"alpha": 0.05, "beta": null}, "clamp_to_range": true, "draft": true},
+    {"edge_id": "e_110", "form": "linear", "parameters": {"alpha": -0.05, "beta": null}, "clamp_to_range": true, "draft": true},
+    {"edge_id": "e_111", "form": "linear", "parameters": {"alpha": 0.02, "beta": null}, "clamp_to_range": true, "draft": true},
+    {"edge_id": "e_112", "form": "linear", "parameters": {"alpha": -0.005, "beta": null}, "clamp_to_range": true, "draft": true},
+    {"edge_id": "e_113", "form": "linear", "parameters": {"alpha": -0.02, "beta": null}, "clamp_to_range": true, "draft": true},
+
+    {"edge_id": "e_114", "form": "linear", "parameters": {"alpha": -0.4, "beta": null}, "clamp_to_range": true, "draft": true},
+    {"edge_id": "e_115", "form": "linear", "parameters": {"alpha": 0.5, "beta": null}, "clamp_to_range": true, "draft": true},
+    {"edge_id": "e_116", "form": "linear", "parameters": {"alpha": 0.05, "beta": null}, "clamp_to_range": true, "draft": true},
+    {"edge_id": "e_117", "form": "linear", "parameters": {"alpha": 0.05, "beta": null}, "clamp_to_range": true, "draft": true},
+    {"edge_id": "e_118", "form": "linear", "parameters": {"alpha": -0.02, "beta": null}, "clamp_to_range": true, "draft": true},
+    {"edge_id": "e_119", "form": "linear", "parameters": {"alpha": 0.1, "beta": null}, "clamp_to_range": true, "draft": true},
+    {"edge_id": "e_120", "form": "linear", "parameters": {"alpha": 1.0, "beta": null}, "clamp_to_range": true, "draft": true},
+    {"edge_id": "e_121", "form": "log_linear", "parameters": {"alpha": 0.05, "beta": 5.0}, "clamp_to_range": true, "draft": true},
+
+    {"edge_id": "e_122", "form": "linear", "parameters": {"alpha": -3.0, "beta": null}, "clamp_to_range": true, "draft": true},
+    {"edge_id": "e_123", "form": "linear", "parameters": {"alpha": 0.05, "beta": null}, "clamp_to_range": true, "draft": true},
+    {"edge_id": "e_124", "form": "linear", "parameters": {"alpha": 0.04, "beta": null}, "clamp_to_range": true, "draft": true},
+    {"edge_id": "e_125", "form": "linear", "parameters": {"alpha": -0.04, "beta": null}, "clamp_to_range": true, "draft": true},
+    {"edge_id": "e_126", "form": "linear", "parameters": {"alpha": 0.03, "beta": null}, "clamp_to_range": true, "draft": true},
+    {"edge_id": "e_127", "form": "log_linear", "parameters": {"alpha": 0.04, "beta": 100.0}, "clamp_to_range": true, "draft": true},
+    {"edge_id": "e_128", "form": "linear", "parameters": {"alpha": -0.02, "beta": null}, "clamp_to_range": true, "draft": true},
+    {"edge_id": "e_129", "form": "linear", "parameters": {"alpha": 0.04, "beta": null}, "clamp_to_range": true, "draft": true},
+    {"edge_id": "e_130", "form": "linear", "parameters": {"alpha": 0.05, "beta": null}, "clamp_to_range": true, "draft": true},
+    {"edge_id": "e_131", "form": "log_linear", "parameters": {"alpha": 0.02, "beta": 100.0}, "clamp_to_range": true, "draft": true},
+
+    {"edge_id": "e_132", "form": "linear", "parameters": {"alpha": 0.04, "beta": null}, "clamp_to_range": true, "draft": true},
+    {"edge_id": "e_133", "form": "linear", "parameters": {"alpha": -3.0, "beta": null}, "clamp_to_range": true, "draft": true},
+    {"edge_id": "e_134", "form": "linear", "parameters": {"alpha": -0.04, "beta": null}, "clamp_to_range": true, "draft": true},
+    {"edge_id": "e_135", "form": "linear", "parameters": {"alpha": 0.05, "beta": null}, "clamp_to_range": true, "draft": true},
+    {"edge_id": "e_136", "form": "linear", "parameters": {"alpha": 0.04, "beta": null}, "clamp_to_range": true, "draft": true}
   ]
 }

@@ -20,6 +20,13 @@ Cada uma das 87 edges em `spec/causal_dag.json` tem uma seção curta abaixo. **
 > - ~26 edges tiveram magnitude/lag/contested ajustados. Notas inline em cada edge alterada (`etapa_1_5_note`).
 > - Total de edges: 87 → 81 (-7 removidas, +1 split).
 
+> **Etapa 1.5 — Rodada 3**: 49 edges adicionadas (e_088 a e_136) cobrindo 6 clusters + 5 edges para health.mental_wellbeing. Loops de feedback centrais explicitamente formados:
+> - **AI Funding Cycle**: financial_markets ↔ ai_capability via VC funding (e_004, e_089, e_096) — quando crise atinge mercados, capacidade de IA também desacelera.
+> - **Regulação ↔ Concentração**: bigtech ↔ regulation (e_043, e_044, e_099, e_118) — concentração gera pressão regulatória, regulação reduz concentração com lag.
+> - **Trust ↔ Disinformação**: media_trust ↔ disinformation (e_028, e_029, e_027, e_107) — confiança alta resiste à adoção de disinfo, mas disinfo erode trust com força. Sem o feedback negativo (e_107), motor produzia só amplificação monotônica.
+>
+> A função `validate_central_loops()` em `src/spec/validation.py` checa que esses 3 ciclos estão presentes a cada validação.
+
 Convenção: magnitude qualitativa, lag em turnos (1 turno = 1 semestre), scope = within_block / spillover / global.
 
 Onde indico referências, sugiro papers que tenho confiança razoável que existem; onde houver dúvida, marquei `[verificar referência]`.

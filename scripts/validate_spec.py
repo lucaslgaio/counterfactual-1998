@@ -27,6 +27,13 @@ def main() -> int:
         print(f"- **{key}**: {val}")
     print()
 
+    if report.loops_present:
+        print("## Central loops\n")
+        for loop_name, present in report.loops_present.items():
+            status = "✓" if present else "✗"
+            print(f"- {status} {loop_name}")
+        print()
+
     if report.warnings:
         print("## Warnings\n")
         for w in report.warnings:

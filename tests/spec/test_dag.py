@@ -38,7 +38,8 @@ def test_strip_block_suffix_with_pair():
 def test_load_real_dag():
     edges = load_dag(SPEC_DIR / "causal_dag.json")
     assert len(edges) >= 60, "expected at least 60 edges in DAG"
-    assert len(edges) <= 100, "expected at most 100 edges"
+    # Etapa 1.5 expanded the DAG to ~130 edges. Cap is generous to allow further additions.
+    assert len(edges) <= 200, "expected at most 200 edges (sanity bound)"
 
 
 def test_real_dag_has_no_lag0_cycles():

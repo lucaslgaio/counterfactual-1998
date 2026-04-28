@@ -42,10 +42,53 @@ class ValidationReport:
     errors: List[str] = field(default_factory=list)
     warnings: List[str] = field(default_factory=list)
     stats: Dict[str, int] = field(default_factory=dict)
+    loops_present: Dict[str, bool] = field(default_factory=dict)
 
     @property
     def ok(self) -> bool:
         return len(self.errors) == 0
+
+
+# Central loops that must be present after Rodada 3.
+# Each loop is a list of edges (source, target) that should form a closed cycle
+# with total positive lag (so the cycle is well-formed in time).
+CENTRAL_LOOPS: Dict[str, List[tuple]] = {
+    "ai_funding_cycle": [
+        ("financial_markets.global_index", "ai_capability.frontier_capability"),
+        ("ai_capability.frontier_capability", "financial_markets.global_index"),
+        ("financial_markets.systemic_risk", "ai_capability.frontier_capability"),
+    ],
+    "regulation_concentration": [
+        ("tech_industry.bigtech_concentration", "governance.ai_regulation_maturity"),
+        ("governance.ai_regulation_maturity", "tech_industry.bigtech_concentration"),
+        ("labor_market.automation_exposure", "governance.ai_regulation_maturity"),
+        ("governance.ai_regulation_maturity", "financial_markets.systemic_risk"),
+    ],
+    "trust_disinformation": [
+        ("information_ecosystem.disinformation_level", "information_ecosystem.media_trust"),
+        ("information_ecosystem.media_trust", "information_ecosystem.disinformation_level"),
+        ("ai_capability.population_penetration", "information_ecosystem.disinformation_level"),
+        ("governance.ai_regulation_maturity", "information_ecosystem.disinformation_level"),
+    ],
+}
+
+
+def validate_central_loops(edges: List[CausalEdge]) -> Dict[str, Dict[str, object]]:
+    """Verifies that the 3 central feedback loops are present in the DAG.
+
+    Returns a dict {loop_name: {present: bool, missing: [(src, tgt), ...]}}.
+    """
+    edge_pairs = {(e.base_source, e.base_target) for e in edges}
+    result: Dict[str, Dict[str, object]] = {}
+    for loop_name, required_pairs in CENTRAL_LOOPS.items():
+        missing = [pair for pair in required_pairs if pair not in edge_pairs]
+        result[loop_name] = {
+            "present": len(missing) == 0,
+            "missing": missing,
+            "required_count": len(required_pairs),
+            "found_count": len(required_pairs) - len(missing),
+        }
+    return result
 
 
 def load_metric_taxonomy(path: Path) -> List[Dict]:
@@ -101,6 +144,16 @@ def run_full_validation(spec_dir: Path = SPEC_DIR_DEFAULT) -> ValidationReport:
     event_errors = validate_events(events_spec, full_keys)
     report.errors.extend(f"[events] {e}" for e in event_errors)
 
+    # Central loops check (informational — does not fail validation, only warns)
+    loops = validate_central_loops(edges)
+    for loop_name, info in loops.items():
+        report.loops_present[loop_name] = bool(info["present"])
+        if not info["present"]:
+            missing_str = ", ".join(f"{s}→{t}" for s, t in info["missing"])
+            report.warnings.append(
+                f"[loops] central loop {loop_name!r} incomplete: missing {missing_str}"
+            )
+
     report.stats["metrics"] = len(metrics)
     report.stats["edges"] = len(edges)
     report.stats["functions"] = len(fns)
@@ -109,5 +162,7 @@ def run_full_validation(spec_dir: Path = SPEC_DIR_DEFAULT) -> ValidationReport:
     report.stats["composite_factors"] = len(events_spec.composite_factors)
     report.stats["blocks"] = len(blocks_spec.blocks)
     report.stats["spillover_pairs"] = len(blocks_spec.spillover_friction)
+    report.stats["central_loops_present"] = sum(1 for v in report.loops_present.values() if v)
+    report.stats["central_loops_total"] = len(CENTRAL_LOOPS)
 
     return report

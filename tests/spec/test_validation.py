@@ -5,7 +5,13 @@ from pathlib import Path
 
 import pytest
 
-from src.spec.validation import run_full_validation, ValidationReport
+from src.spec.dag import load_dag
+from src.spec.validation import (
+    CENTRAL_LOOPS,
+    run_full_validation,
+    validate_central_loops,
+    ValidationReport,
+)
 
 SPEC_DIR = Path(__file__).parent.parent.parent / "spec"
 
@@ -38,3 +44,51 @@ def test_validation_report_ok_property():
     assert report.ok
     report.errors.append("oops")
     assert not report.ok
+
+
+# Etapa 1.5 Rodada 3 — central loops
+
+
+def test_central_loops_defined():
+    """The 3 central loops of the project must be defined."""
+    assert "ai_funding_cycle" in CENTRAL_LOOPS
+    assert "regulation_concentration" in CENTRAL_LOOPS
+    assert "trust_disinformation" in CENTRAL_LOOPS
+
+
+def test_real_dag_has_all_central_loops():
+    """After Rodada 3, all 3 central loops should be present in the real DAG."""
+    edges = load_dag(SPEC_DIR / "causal_dag.json")
+    result = validate_central_loops(edges)
+    for loop_name, info in result.items():
+        assert info["present"], (
+            f"central loop {loop_name} incomplete: missing {info['missing']}"
+        )
+
+
+def test_full_validation_reports_loop_presence():
+    report = run_full_validation(SPEC_DIR)
+    assert "central_loops_present" in report.stats
+    assert "central_loops_total" in report.stats
+    # Rodada 3 should have all 3 loops present
+    assert report.stats["central_loops_present"] == 3
+    assert report.stats["central_loops_total"] == 3
+    for loop_name in CENTRAL_LOOPS:
+        assert report.loops_present.get(loop_name) is True
+
+
+def test_central_loops_detect_missing():
+    """If a required edge is missing, the validator should flag it."""
+    # Build a small fake DAG with only some of the required edges
+    from src.spec.dag import CausalEdge
+    edges = [
+        CausalEdge(
+            id="e_1", source="financial_markets.global_index",
+            target="ai_capability.frontier_capability",
+            direction="positive", magnitude="medium", lag_turns=4,
+            scope="global", justification_ref="x",
+        ),
+    ]
+    result = validate_central_loops(edges)
+    assert result["ai_funding_cycle"]["present"] is False
+    assert len(result["ai_funding_cycle"]["missing"]) >= 2
