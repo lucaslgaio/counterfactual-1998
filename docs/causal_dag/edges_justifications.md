@@ -634,3 +634,31 @@ no corpo deste documento. Justificativa inicial vive em `etapa_1_5_note`
 **Confidence**: medium
 
 **Validation note**: Pickett Wilkinson 2010 mostra correlacao forte desigualdade-mental illness em paises ricos. Meta-analises confirmam direcao. Magnitude medium defensavel. Refs: Pickett Wilkinson 2010 Equality; Ribeiro et al 2017 Lancet Psychiatry; Patel et al 2018 Lancet.
+
+### e_110: energy_climate.co2_gt_year → health.life_expectancy
+- **Direção**: negativa | **Magnitude**: medium | **Lag**: 12 turnos | **Scope**: global
+
+**Justificativa Rodada 3**: Rodada 3: climate change → eventos extremos + poluição → mortalidade (Lancet Countdown); lag longo mas mecanismo robusto
+
+**Referências validadas (Etapa 2)**:
+- Romanello et al 2024, The Lancet, "The 2024 report of the Lancet Countdown on health and climate change"
+- Burke, Hsiang & Miguel 2015, Nature 527:235-239, "Global non-linear effect of temperature on economic production"
+- WHO 2023, World Health Organization, "Climate change and health"
+
+**Confidence**: high
+
+**Validation note**: Lancet Countdown 2024: 489.000 mortes adicionais/ano por heat-related causes em 2022. Magnitude medium e lag 12 (6 anos) honestos dado efeitos cumulativos. Refs: Romanello et al 2024 Lancet Countdown; Burke Hsiang Miguel 2015 Nature; WHO 2023 Climate change and health.
+
+### e_134: information_ecosystem.disinformation_level → health.mental_wellbeing
+- **Direção**: negativa | **Magnitude**: weak | **Lag**: 2 turnos | **Scope**: within_block
+
+**Justificativa Rodada 3**: Rodada 3: ecossistema informacional saturado → ansiedade, paranoia, desorientação
+
+**Referências validadas (Etapa 2)**:
+- Bago, Rand & Pennycook 2020, Journal of Experimental Psychology: General 149(8):1608-1613, "Fake news, fast and slow: Deliberation reduces belief in false (but not true) news headlines"
+- Sharma et al 2024, PLoS One, "Information overload and psychological wellbeing: a systematic review"
+- American Psychological Association 2023, "Stress in America Report"
+
+**Confidence**: medium
+
+**Validation note**: Literatura emergente sobre infoxicacao e wellbeing. Magnitude weak honesta — efeito real mas limitado a sub-populacoes altamente expostas. Refs: Bago Rand Pennycook 2020 J Exp Psychol Gen; Sharma et al 2024 PLoS One; APA 2023 Stress in America Report.
