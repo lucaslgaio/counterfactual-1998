@@ -1,0 +1,293 @@
+{
+  "_meta": {
+    "draft": true,
+    "description": "Variantes condicionais para os 16 eventos âncora. Cada evento tem 3-4 variantes com base_probability somando 1.0. Modulators ajustam a probabilidade conforme o estado contrafactual. Validar com pesquisa histórica + literatura sobre IA + segurança/economia/política.",
+    "schema": {
+      "events": "Lista dos 16 eventos com variantes",
+      "delta_packages": "Pacotes de deltas referenciados por delta_package_id",
+      "composite_factors": "Fatores compostos usados em modulators (combinações lineares de métricas)"
+    }
+  },
+  "composite_factors": {
+    "ai_intelligence_composite_US": {
+      "formula": "0.4 * ai_capability.frontier_capability.US + 0.3 * ai_capability.population_penetration.US + 0.3 * governance.ai_regulation_maturity.US",
+      "normalization": "divide_by_100",
+      "draft": true
+    },
+    "ai_intelligence_composite_global": {
+      "formula": "0.25 * ai_capability.frontier_capability.US + 0.25 * ai_capability.frontier_capability.EU + 0.25 * ai_capability.frontier_capability.CN + 0.25 * ai_capability.frontier_capability.RoW",
+      "normalization": "divide_by_100",
+      "draft": true
+    },
+    "financial_fragility": {
+      "formula": "financial_markets.systemic_risk - 0.5 * (100 - financial_markets.global_index)",
+      "normalization": "divide_by_100",
+      "draft": true
+    },
+    "ai_economic_dependency": {
+      "formula": "0.5 * ai_capability.population_penetration.US + 0.3 * tech_industry.bigtech_concentration.US + 0.2 * tech_industry.tech_employment_share.US",
+      "normalization": "divide_by_100",
+      "draft": true
+    },
+    "ai_disinfo_capacity": {
+      "formula": "ai_capability.frontier_capability.US * (information_ecosystem.disinformation_level.US / 100)",
+      "normalization": "divide_by_100",
+      "draft": true
+    }
+  },
+  "events": [
+    {
+      "event_id": "1998-S2-crise-russa",
+      "turn_label": "1998-S2",
+      "description": "Crise financeira russa / default soberano",
+      "draft": true,
+      "variants": [
+        {"id": "real", "description": "Ocorre como historicamente — moratória russa em agosto/98, contágio LTCM, intervenção Fed", "base_probability": 0.6, "modulators": [{"factor": "ai_intelligence_composite_US", "coefficient": -0.3}], "delta_package_id": "russa_real"},
+        {"id": "mitigado", "description": "Default ocorre mas alertas preditivos de IA reduzem contágio em ~50%", "base_probability": 0.3, "modulators": [{"factor": "ai_intelligence_composite_US", "coefficient": 0.5}], "delta_package_id": "russa_mitigado"},
+        {"id": "evitado", "description": "FMI age preventivamente com base em modelos de IA, default é negociado e contornado", "base_probability": 0.1, "modulators": [{"factor": "ai_intelligence_composite_US", "coefficient": 0.4}], "delta_package_id": "russa_evitado"}
+      ]
+    },
+    {
+      "event_id": "1999-S2-y2k",
+      "turn_label": "1999-S2",
+      "description": "Bug do Milênio (Y2K)",
+      "draft": true,
+      "variants": [
+        {"id": "real", "description": "Y2K passa sem grandes incidentes (como na linha real, já bem gerenciado)", "base_probability": 0.5, "modulators": [], "delta_package_id": "y2k_real"},
+        {"id": "neutralizado_ia", "description": "IA audita sistemas globais; transição é triunfo público de IA", "base_probability": 0.4, "modulators": [{"factor": "ai_intelligence_composite_US", "coefficient": 0.6}], "delta_package_id": "y2k_neutralizado"},
+        {"id": "incidente_localizado", "description": "Falha localizada em sistema crítico mal-auditado (banco/usina), contida pela IA, mas gera pânico breve", "base_probability": 0.1, "modulators": [], "delta_package_id": "y2k_incidente"}
+      ]
+    },
+    {
+      "event_id": "2000-S1-pico-nasdaq",
+      "turn_label": "2000-S1",
+      "description": "Pico do Nasdaq (5048)",
+      "draft": true,
+      "variants": [
+        {"id": "real", "description": "Nasdaq atinge ~5000 e começa correção", "base_probability": 0.5, "modulators": [{"factor": "ai_economic_dependency", "coefficient": 0.3}], "delta_package_id": "nasdaq_real"},
+        {"id": "pico_amplificado", "description": "Hype com IA leva Nasdaq acima de 7000, bolha se infla mais que histórico", "base_probability": 0.3, "modulators": [{"factor": "ai_economic_dependency", "coefficient": 0.5}], "delta_package_id": "nasdaq_amplificado"},
+        {"id": "pico_atenuado", "description": "Modelos de risco com IA já indicam sobrevalorização; pico mais baixo (~3500) e correção mais suave", "base_probability": 0.2, "modulators": [{"factor": "ai_intelligence_composite_US", "coefficient": 0.4}], "delta_package_id": "nasdaq_atenuado"}
+      ]
+    },
+    {
+      "event_id": "2001-S1-estouro-bolha",
+      "turn_label": "2001-S1",
+      "description": "Estouro da bolha .com",
+      "draft": true,
+      "variants": [
+        {"id": "real", "description": "Crash similar ao histórico, perda de ~70% no Nasdaq ao longo de 2 anos", "base_probability": 0.5, "modulators": [], "delta_package_id": "bolha_real"},
+        {"id": "amplificado", "description": "Crash mais profundo (-85%) por amplificação da bolha anterior", "base_probability": 0.25, "modulators": [{"factor": "financial_fragility", "coefficient": 0.5}], "delta_package_id": "bolha_amplificada"},
+        {"id": "atenuado", "description": "IA-driven hedging reduz queda; correção em -40%, recuperação rápida", "base_probability": 0.25, "modulators": [{"factor": "ai_intelligence_composite_US", "coefficient": 0.4}], "delta_package_id": "bolha_atenuada"}
+      ]
+    },
+    {
+      "event_id": "2001-S2-11-setembro",
+      "turn_label": "2001-S2",
+      "description": "Atentados de 11 de Setembro",
+      "draft": true,
+      "variants": [
+        {"id": "real", "description": "Ocorre como na realidade — Torres, Pentágono, Pensilvânia", "base_probability": 0.55, "modulators": [{"factor": "ai_intelligence_composite_US", "coefficient": -0.5}], "delta_package_id": "11set_real"},
+        {"id": "frustrado", "description": "Inteligência preditiva com IA detecta a célula; ataque é interceptado horas antes", "base_probability": 0.3, "modulators": [{"factor": "ai_intelligence_composite_US", "coefficient": 0.6}], "delta_package_id": "11set_frustrado"},
+        {"id": "alvo_alterado", "description": "Apenas Pentágono atingido; Torres detectadas e evacuadas", "base_probability": 0.1, "modulators": [{"factor": "ai_intelligence_composite_US", "coefficient": 0.3}], "delta_package_id": "11set_alterado"},
+        {"id": "anulado", "description": "Rede da Al-Qaeda desmantelada antes da execução por vigilância via IA", "base_probability": 0.05, "modulators": [{"factor": "ai_intelligence_composite_US", "coefficient": 0.5}], "delta_package_id": "11set_anulado"}
+      ]
+    },
+    {
+      "event_id": "2003-S1-iraque",
+      "turn_label": "2003-S1",
+      "description": "Invasão do Iraque",
+      "draft": true,
+      "variants": [
+        {"id": "real", "description": "Invasão americana ocorre baseada em alegações de WMD", "base_probability": 0.5, "modulators": [], "delta_package_id": "iraque_real"},
+        {"id": "evitado", "description": "Análise contrafactual via IA expõe fragilidade das alegações de WMD; coalizão se desfaz", "base_probability": 0.3, "modulators": [{"factor": "ai_intelligence_composite_US", "coefficient": 0.4}], "delta_package_id": "iraque_evitado"},
+        {"id": "limitado", "description": "Operação cirúrgica em vez de invasão, com targets selecionados por IA", "base_probability": 0.15, "modulators": [{"factor": "ai_intelligence_composite_US", "coefficient": 0.3}], "delta_package_id": "iraque_limitado"},
+        {"id": "expandido", "description": "Conflito se alastra para Síria/Irã ainda em 2003", "base_probability": 0.05, "modulators": [{"factor": "ai_intelligence_composite_US", "coefficient": -0.2}], "delta_package_id": "iraque_expandido"}
+      ]
+    },
+    {
+      "event_id": "2007-S2-subprime",
+      "turn_label": "2007-S2",
+      "description": "Início da crise subprime",
+      "draft": true,
+      "variants": [
+        {"id": "real", "description": "Crise se desenvolve como na realidade", "base_probability": 0.5, "modulators": [{"factor": "ai_intelligence_composite_US", "coefficient": -0.3}], "delta_package_id": "subprime_real"},
+        {"id": "antecipado", "description": "Modelos de IA identificam sobreexposição já em 2006; ajustes regulatórios suavizam crise", "base_probability": 0.3, "modulators": [{"factor": "ai_intelligence_composite_US", "coefficient": 0.5}], "delta_package_id": "subprime_antecipado"},
+        {"id": "amplificado", "description": "Modelos preditivos de IA aceleram pânico; flash crash mais profundo", "base_probability": 0.2, "modulators": [{"factor": "financial_fragility", "coefficient": 0.4}], "delta_package_id": "subprime_amplificado"}
+      ]
+    },
+    {
+      "event_id": "2008-S2-lehman",
+      "turn_label": "2008-S2",
+      "description": "Falência do Lehman Brothers",
+      "draft": true,
+      "variants": [
+        {"id": "real", "description": "Lehman colapsa, contágio massivo, intervenção governamental", "base_probability": 0.5, "modulators": [{"factor": "ai_intelligence_composite_US", "coefficient": -0.3}], "delta_package_id": "lehman_real"},
+        {"id": "salvo", "description": "Lehman é resgatado por consórcio orquestrado por modelos de IA do Treasury", "base_probability": 0.3, "modulators": [{"factor": "ai_intelligence_composite_US", "coefficient": 0.5}], "delta_package_id": "lehman_salvo"},
+        {"id": "amplificado", "description": "Múltiplos bancos colapsam simultaneamente; depressão evitada por intervenção massiva", "base_probability": 0.2, "modulators": [{"factor": "financial_fragility", "coefficient": 0.5}], "delta_package_id": "lehman_amplificado"}
+      ]
+    },
+    {
+      "event_id": "2010-S2-primavera-arabe",
+      "turn_label": "2010-S2",
+      "description": "Início da Primavera Árabe",
+      "draft": true,
+      "variants": [
+        {"id": "real", "description": "Movimentos populares derrubam regimes em Tunísia, Egito, Líbia", "base_probability": 0.5, "modulators": [{"factor": "ai_disinfo_capacity", "coefficient": 0.3}], "delta_package_id": "primavera_real"},
+        {"id": "intensificada", "description": "Mobilização viral por IA-mediada acelera revoluções, mais regimes caem", "base_probability": 0.25, "modulators": [{"factor": "ai_disinfo_capacity", "coefficient": 0.5}], "delta_package_id": "primavera_intensificada"},
+        {"id": "contida", "description": "Vigilância e contra-mobilização por IA dos regimes contém os movimentos", "base_probability": 0.25, "modulators": [{"factor": "ai_intelligence_composite_global", "coefficient": -0.3}], "delta_package_id": "primavera_contida"}
+      ]
+    },
+    {
+      "event_id": "2011-S1-fukushima",
+      "turn_label": "2011-S1",
+      "description": "Tsunami / acidente nuclear de Fukushima",
+      "draft": true,
+      "variants": [
+        {"id": "real", "description": "Tsunami atinge Fukushima Daiichi; fusão parcial, evacuação massiva", "base_probability": 0.65, "modulators": [], "delta_package_id": "fukushima_real"},
+        {"id": "atenuado", "description": "Sistema preditivo via IA dá margem extra de evacuação e contenção; danos reduzidos", "base_probability": 0.25, "modulators": [{"factor": "ai_intelligence_composite_global", "coefficient": 0.3}], "delta_package_id": "fukushima_atenuado"},
+        {"id": "amplificado", "description": "Falha em cascata em vários reatores japoneses; impacto maior", "base_probability": 0.1, "modulators": [], "delta_package_id": "fukushima_amplificado"}
+      ]
+    },
+    {
+      "event_id": "2014-S1-crimeia",
+      "turn_label": "2014-S1",
+      "description": "Anexação da Crimeia pela Rússia",
+      "draft": true,
+      "variants": [
+        {"id": "real", "description": "Anexação ocorre, sanções ocidentais leves", "base_probability": 0.5, "modulators": [], "delta_package_id": "crimeia_real"},
+        {"id": "deterrência", "description": "Inteligência via IA dá tempo a OTAN de mobilizar; Rússia recua na fase pré-anexação", "base_probability": 0.25, "modulators": [{"factor": "ai_intelligence_composite_global", "coefficient": 0.4}], "delta_package_id": "crimeia_deterrencia"},
+        {"id": "escalada", "description": "Operação russa se expande para Donbas em 2014, conflito direto na Ucrânia já neste ano", "base_probability": 0.15, "modulators": [], "delta_package_id": "crimeia_escalada"},
+        {"id": "ciber_apenas", "description": "Rússia opta por intervenção ciber massiva sem invasão física", "base_probability": 0.1, "modulators": [{"factor": "ai_disinfo_capacity", "coefficient": 0.4}], "delta_package_id": "crimeia_ciber"}
+      ]
+    },
+    {
+      "event_id": "2016-S1-brexit",
+      "turn_label": "2016-S1",
+      "description": "Referendo Brexit (Reino Unido sai da UE)",
+      "draft": true,
+      "variants": [
+        {"id": "real", "description": "Leave vence por margem estreita, processo de saída inicia", "base_probability": 0.5, "modulators": [{"factor": "ai_disinfo_capacity", "coefficient": 0.3}], "delta_package_id": "brexit_real"},
+        {"id": "remain_apertado", "description": "Remain vence por 51-49, mas com fissuras políticas profundas", "base_probability": 0.3, "modulators": [{"factor": "information_ecosystem.media_trust", "coefficient": 0.005}], "delta_package_id": "brexit_remain"},
+        {"id": "leave_amplificado", "description": "Disinfo coordenada via IA leva Leave a vencer por margem maior; saída mais brusca", "base_probability": 0.2, "modulators": [{"factor": "ai_disinfo_capacity", "coefficient": 0.5}], "delta_package_id": "brexit_amplificado"}
+      ]
+    },
+    {
+      "event_id": "2016-S2-trump",
+      "turn_label": "2016-S2",
+      "description": "Eleição de Donald Trump",
+      "draft": true,
+      "variants": [
+        {"id": "real", "description": "Trump vence Hillary Clinton no Colégio Eleitoral", "base_probability": 0.45, "modulators": [{"factor": "ai_disinfo_capacity", "coefficient": 0.3}], "delta_package_id": "trump_real"},
+        {"id": "clinton_vence", "description": "Hillary vence apertado; deepfakes coordenados detectados a tempo", "base_probability": 0.3, "modulators": [{"factor": "governance.ai_regulation_maturity.US", "coefficient": 0.005}], "delta_package_id": "trump_clinton"},
+        {"id": "trump_amplificado", "description": "Vitória maior por desinfo industrial; legitimidade contestada", "base_probability": 0.15, "modulators": [{"factor": "ai_disinfo_capacity", "coefficient": 0.5}], "delta_package_id": "trump_amplificado"},
+        {"id": "outro_candidato", "description": "Crise interna do Republicano leva a candidato alternativo (Bloomberg-like); novo cenário", "base_probability": 0.1, "modulators": [], "delta_package_id": "trump_outro"}
+      ]
+    },
+    {
+      "event_id": "2020-S1-covid",
+      "turn_label": "2020-S1",
+      "description": "Pandemia COVID-19",
+      "draft": true,
+      "variants": [
+        {"id": "real", "description": "Pandemia se espalha como historicamente, lockdowns globais, economia em recessão", "base_probability": 0.45, "modulators": [{"factor": "ai_intelligence_composite_global", "coefficient": -0.2}], "delta_package_id": "covid_real"},
+        {"id": "controlado_cedo", "description": "Vigilância epidemiológica via IA detecta surto em dezembro/19 antes de espalhar; contenção em Wuhan", "base_probability": 0.2, "modulators": [{"factor": "ai_intelligence_composite_global", "coefficient": 0.5}], "delta_package_id": "covid_controlado"},
+        {"id": "vacinas_express", "description": "Pandemia ocorre mas IA acelera vacinas em 4 meses (não 11); economia retorna ao normal em 2020-S2", "base_probability": 0.25, "modulators": [{"factor": "science_rd.breakthroughs_per_year.US", "coefficient": 0.005}], "delta_package_id": "covid_vacinas"},
+        {"id": "amplificado", "description": "Pandemia mais letal por mutações cedo + falha de coordenação; 2-3x mortes", "base_probability": 0.1, "modulators": [], "delta_package_id": "covid_amplificado"}
+      ]
+    },
+    {
+      "event_id": "2022-S1-ucrania",
+      "turn_label": "2022-S1",
+      "description": "Invasão russa da Ucrânia",
+      "draft": true,
+      "variants": [
+        {"id": "real", "description": "Rússia invade em fevereiro/22, conflito prolongado", "base_probability": 0.4, "modulators": [], "delta_package_id": "ucrania_real"},
+        {"id": "deterrência", "description": "Inteligência precisa via IA + contramobilização pré-emptiva da OTAN dissuade Rússia", "base_probability": 0.25, "modulators": [{"factor": "ai_intelligence_composite_global", "coefficient": 0.4}], "delta_package_id": "ucrania_deterrencia"},
+        {"id": "limitada", "description": "Operação russa fica restrita a Donbas/Kherson; Kiev não é invadida", "base_probability": 0.2, "modulators": [], "delta_package_id": "ucrania_limitada"},
+        {"id": "escalada_nuclear", "description": "Conflito escala para uso de armamento tático em fase posterior", "base_probability": 0.15, "modulators": [{"factor": "geopolitics.bilateral_tensions.US_CN", "coefficient": 0.005}], "delta_package_id": "ucrania_nuclear"}
+      ]
+    },
+    {
+      "event_id": "2022-S2-chatgpt",
+      "turn_label": "2022-S2",
+      "description": "Lançamento do ChatGPT na linha real",
+      "draft": true,
+      "variants": [
+        {"id": "irrelevante", "description": "Como Athena já existe desde 1998, lançamento de produto similar é incremental, não evento", "base_probability": 0.5, "modulators": [{"factor": "ai_capability.population_penetration.US", "coefficient": 0.005}], "delta_package_id": "chatgpt_irrelevante"},
+        {"id": "concorrente_open", "description": "Concorrente open-source emerge nesse trimestre; pressão sobre incumbents", "base_probability": 0.3, "modulators": [], "delta_package_id": "chatgpt_open"},
+        {"id": "agi_announce", "description": "Anúncio de AGI por um dos labs (Anthropic-precoce ou outro); pânico ou euforia", "base_probability": 0.2, "modulators": [{"factor": "ai_intelligence_composite_global", "coefficient": 0.4}], "delta_package_id": "chatgpt_agi"}
+      ]
+    }
+  ],
+  "delta_packages": {
+    "russa_real": {"description": "Crise russa como histórica", "deltas": {"financial_markets.systemic_risk": 12, "financial_markets.global_index": -8, "geopolitics.bilateral_tensions.US_RoW": 5}, "draft": true},
+    "russa_mitigado": {"description": "Crise atenuada por IA", "deltas": {"financial_markets.systemic_risk": 6, "financial_markets.global_index": -3, "ai_capability.population_penetration.US": 1, "ai_capability.population_penetration.EU": 0.5}, "draft": true},
+    "russa_evitado": {"description": "Default contornado", "deltas": {"financial_markets.systemic_risk": -2, "financial_markets.global_index": 2, "ai_capability.population_penetration.US": 1.5}, "draft": true},
+
+    "y2k_real": {"description": "Y2K como linha real", "deltas": {"financial_markets.systemic_risk": -1, "information_ecosystem.media_trust": 1}, "draft": true},
+    "y2k_neutralizado": {"description": "IA neutraliza Y2K", "deltas": {"information_ecosystem.media_trust": 4, "ai_capability.population_penetration.US": 2, "ai_capability.population_penetration.EU": 1, "financial_markets.global_index": 5}, "draft": true},
+    "y2k_incidente": {"description": "Pequeno susto", "deltas": {"financial_markets.systemic_risk": 3, "information_ecosystem.media_trust": -2, "financial_markets.global_index": -3}, "draft": true},
+
+    "nasdaq_real": {"description": "Pico Nasdaq histórico", "deltas": {"financial_markets.global_index": 15, "financial_markets.systemic_risk": 8}, "draft": true},
+    "nasdaq_amplificado": {"description": "Pico amplificado por IA-hype", "deltas": {"financial_markets.global_index": 25, "financial_markets.systemic_risk": 15, "tech_industry.bigtech_concentration.US": 3}, "draft": true},
+    "nasdaq_atenuado": {"description": "Bolha menos inflada", "deltas": {"financial_markets.global_index": 8, "financial_markets.systemic_risk": 3, "ai_capability.population_penetration.US": 1}, "draft": true},
+
+    "bolha_real": {"description": "Crash .com histórico", "deltas": {"financial_markets.global_index": -25, "financial_markets.systemic_risk": 15, "labor_market.employment_rate.US": -1.5, "tech_industry.tech_employment_share.US": -0.4}, "draft": true},
+    "bolha_amplificada": {"description": "Crash mais profundo", "deltas": {"financial_markets.global_index": -40, "financial_markets.systemic_risk": 25, "labor_market.employment_rate.US": -2.5, "tech_industry.tech_employment_share.US": -0.6}, "draft": true},
+    "bolha_atenuada": {"description": "Crash suave por hedging via IA", "deltas": {"financial_markets.global_index": -12, "financial_markets.systemic_risk": 8, "labor_market.employment_rate.US": -0.5, "ai_capability.population_penetration.US": 1}, "draft": true},
+
+    "11set_real": {"description": "11/9 como histórico", "deltas": {"geopolitics.bilateral_tensions.US_RoW": 15, "information_ecosystem.media_trust": -8, "governance.ai_regulation_maturity.US": 3, "financial_markets.systemic_risk": 12, "geopolitics.active_conflicts": 2}, "draft": true},
+    "11set_frustrado": {"description": "Atentado interceptado", "deltas": {"governance.ai_regulation_maturity.US": 8, "information_ecosystem.media_trust": 5, "ai_capability.population_penetration.US": 2, "geopolitics.bilateral_tensions.US_RoW": 4}, "draft": true},
+    "11set_alterado": {"description": "Apenas Pentágono atingido", "deltas": {"geopolitics.bilateral_tensions.US_RoW": 10, "information_ecosystem.media_trust": -3, "governance.ai_regulation_maturity.US": 5}, "draft": true},
+    "11set_anulado": {"description": "Rede desmantelada", "deltas": {"governance.ai_regulation_maturity.US": 6, "information_ecosystem.media_trust": 6, "ai_capability.population_penetration.US": 2}, "draft": true},
+
+    "iraque_real": {"description": "Invasão como histórica", "deltas": {"geopolitics.active_conflicts": 1, "geopolitics.bilateral_tensions.US_RoW": 8, "financial_markets.systemic_risk": 5, "energy_climate.co2_gt_year": 0.3, "information_ecosystem.media_trust": -5}, "draft": true},
+    "iraque_evitado": {"description": "Coalizão se desfaz", "deltas": {"information_ecosystem.media_trust": 4, "governance.democracy_index.US": 0.2, "geopolitics.bilateral_tensions.US_RoW": -2, "ai_capability.population_penetration.US": 1}, "draft": true},
+    "iraque_limitado": {"description": "Operação cirúrgica", "deltas": {"geopolitics.active_conflicts": 1, "geopolitics.bilateral_tensions.US_RoW": 4, "financial_markets.systemic_risk": 2}, "draft": true},
+    "iraque_expandido": {"description": "Conflito regional", "deltas": {"geopolitics.active_conflicts": 4, "geopolitics.bilateral_tensions.US_RoW": 15, "financial_markets.systemic_risk": 12, "energy_climate.co2_gt_year": 0.6, "information_ecosystem.media_trust": -10}, "draft": true},
+
+    "subprime_real": {"description": "Crise subprime histórica", "deltas": {"financial_markets.systemic_risk": 25, "financial_markets.global_index": -18, "labor_market.employment_rate.US": -1.5, "labor_market.employment_rate.EU": -1, "inequality.gini_intra_block.US": 0.005}, "draft": true},
+    "subprime_antecipado": {"description": "Ajustes amortecem crise", "deltas": {"financial_markets.systemic_risk": 12, "financial_markets.global_index": -8, "governance.ai_regulation_maturity.US": 4, "ai_capability.population_penetration.US": 1.5}, "draft": true},
+    "subprime_amplificado": {"description": "Flash crash via IA", "deltas": {"financial_markets.systemic_risk": 35, "financial_markets.global_index": -28, "labor_market.employment_rate.US": -2.5, "information_ecosystem.media_trust": -5}, "draft": true},
+
+    "lehman_real": {"description": "Lehman como histórico", "deltas": {"financial_markets.systemic_risk": 25, "financial_markets.global_index": -20, "labor_market.employment_rate.US": -2, "inequality.gini_intra_block.US": 0.01, "governance.ai_regulation_maturity.US": 5}, "draft": true},
+    "lehman_salvo": {"description": "Lehman resgatado", "deltas": {"financial_markets.systemic_risk": 10, "financial_markets.global_index": -8, "ai_capability.population_penetration.US": 2, "governance.ai_regulation_maturity.US": 6}, "draft": true},
+    "lehman_amplificado": {"description": "Múltiplos colapsos", "deltas": {"financial_markets.systemic_risk": 35, "financial_markets.global_index": -35, "labor_market.employment_rate.US": -4, "labor_market.employment_rate.EU": -2.5, "inequality.gini_intra_block.US": 0.02, "governance.democracy_index.US": -0.3}, "draft": true},
+
+    "primavera_real": {"description": "Primavera Árabe como histórica", "deltas": {"geopolitics.active_conflicts": 3, "governance.democracy_index.RoW": 0.2, "energy_climate.co2_gt_year": 0.2, "geopolitics.bilateral_tensions.US_RoW": 4}, "draft": true},
+    "primavera_intensificada": {"description": "Mais regimes caem", "deltas": {"geopolitics.active_conflicts": 5, "governance.democracy_index.RoW": 0.5, "ai_capability.population_penetration.RoW": 1.5, "geopolitics.bilateral_tensions.US_RoW": 6}, "draft": true},
+    "primavera_contida": {"description": "Movimentos sufocados", "deltas": {"geopolitics.active_conflicts": 1, "governance.democracy_index.RoW": -0.3, "information_ecosystem.disinformation_level.RoW": 4, "ai_capability.population_penetration.CN": 1}, "draft": true},
+
+    "fukushima_real": {"description": "Fukushima como histórico", "deltas": {"energy_climate.renewable_share": 0.5, "financial_markets.systemic_risk": 5, "information_ecosystem.media_trust": -3, "energy_climate.co2_gt_year": 0.2}, "draft": true},
+    "fukushima_atenuado": {"description": "Danos reduzidos", "deltas": {"energy_climate.renewable_share": 0.3, "financial_markets.systemic_risk": 2, "ai_capability.population_penetration.RoW": 1}, "draft": true},
+    "fukushima_amplificado": {"description": "Falha em cascata", "deltas": {"energy_climate.renewable_share": 1.5, "financial_markets.systemic_risk": 12, "information_ecosystem.media_trust": -8, "energy_climate.co2_gt_year": 0.5}, "draft": true},
+
+    "crimeia_real": {"description": "Anexação como histórica", "deltas": {"geopolitics.bilateral_tensions.US_CN": 4, "geopolitics.bilateral_tensions.EU_RoW": 8, "geopolitics.active_conflicts": 1, "financial_markets.systemic_risk": 4}, "draft": true},
+    "crimeia_deterrencia": {"description": "Rússia recua", "deltas": {"geopolitics.bilateral_tensions.US_CN": 2, "ai_capability.population_penetration.US": 1, "governance.ai_regulation_maturity.US": 2}, "draft": true},
+    "crimeia_escalada": {"description": "Conflito direto na Ucrânia", "deltas": {"geopolitics.active_conflicts": 3, "geopolitics.bilateral_tensions.US_CN": 8, "geopolitics.bilateral_tensions.EU_RoW": 15, "financial_markets.systemic_risk": 10, "energy_climate.co2_gt_year": 0.4}, "draft": true},
+    "crimeia_ciber": {"description": "Apenas operação ciber", "deltas": {"information_ecosystem.disinformation_level.RoW": 6, "geopolitics.bilateral_tensions.EU_RoW": 5, "governance.ai_regulation_maturity.EU": 3}, "draft": true},
+
+    "brexit_real": {"description": "Leave vence", "deltas": {"financial_markets.systemic_risk": 4, "geopolitics.bilateral_tensions.US_EU": 2, "governance.democracy_index.EU": -0.2, "information_ecosystem.disinformation_level.EU": 3}, "draft": true},
+    "brexit_remain": {"description": "Remain vence apertado", "deltas": {"governance.democracy_index.EU": -0.1, "information_ecosystem.media_trust": 1, "information_ecosystem.disinformation_level.EU": 2}, "draft": true},
+    "brexit_amplificado": {"description": "Saída brusca", "deltas": {"financial_markets.systemic_risk": 8, "geopolitics.bilateral_tensions.US_EU": 4, "governance.democracy_index.EU": -0.4, "information_ecosystem.disinformation_level.EU": 6}, "draft": true},
+
+    "trump_real": {"description": "Trump eleito", "deltas": {"governance.democracy_index.US": -0.4, "information_ecosystem.disinformation_level.US": 6, "geopolitics.bilateral_tensions.US_CN": 4, "geopolitics.bilateral_tensions.US_EU": 3, "governance.ai_regulation_maturity.US": -2}, "draft": true},
+    "trump_clinton": {"description": "Hillary vence", "deltas": {"governance.democracy_index.US": -0.1, "information_ecosystem.disinformation_level.US": 3, "governance.ai_regulation_maturity.US": 2}, "draft": true},
+    "trump_amplificado": {"description": "Vitória contestada", "deltas": {"governance.democracy_index.US": -0.7, "information_ecosystem.disinformation_level.US": 10, "information_ecosystem.media_trust": -5, "geopolitics.bilateral_tensions.US_CN": 6}, "draft": true},
+    "trump_outro": {"description": "Candidato alternativo", "deltas": {"governance.democracy_index.US": -0.2, "ai_capability.population_penetration.US": 1, "information_ecosystem.disinformation_level.US": 4}, "draft": true},
+
+    "covid_real": {"description": "COVID histórico", "deltas": {"health.life_expectancy": -0.5, "financial_markets.systemic_risk": 18, "financial_markets.global_index": -15, "labor_market.employment_rate.US": -3, "labor_market.employment_rate.EU": -2, "ai_capability.population_penetration.US": 4, "ai_capability.population_penetration.EU": 3, "ai_capability.population_penetration.RoW": 2, "information_ecosystem.disinformation_level.US": 8, "energy_climate.co2_gt_year": -1.5}, "draft": true},
+    "covid_controlado": {"description": "Pandemia contida cedo", "deltas": {"health.life_expectancy": 0.1, "financial_markets.systemic_risk": -2, "ai_capability.population_penetration.US": 3, "ai_capability.population_penetration.EU": 2.5, "ai_capability.population_penetration.CN": 2, "ai_capability.population_penetration.RoW": 1.5, "information_ecosystem.media_trust": 4, "governance.ai_regulation_maturity.US": 4}, "draft": true},
+    "covid_vacinas": {"description": "Vacinas em 4 meses", "deltas": {"health.life_expectancy": -0.2, "financial_markets.systemic_risk": 8, "financial_markets.global_index": -5, "ai_capability.population_penetration.US": 4, "health.diagnostic_accuracy": 5, "science_rd.breakthroughs_per_year.US": 4}, "draft": true},
+    "covid_amplificado": {"description": "Pandemia mais letal", "deltas": {"health.life_expectancy": -1.2, "financial_markets.systemic_risk": 28, "financial_markets.global_index": -28, "labor_market.employment_rate.US": -5, "labor_market.employment_rate.EU": -4, "geopolitics.bilateral_tensions.US_CN": 10, "information_ecosystem.disinformation_level.US": 15}, "draft": true},
+
+    "ucrania_real": {"description": "Invasão como histórica", "deltas": {"geopolitics.active_conflicts": 2, "geopolitics.bilateral_tensions.US_CN": 6, "geopolitics.bilateral_tensions.EU_RoW": 18, "financial_markets.systemic_risk": 8, "energy_climate.co2_gt_year": 0.5, "energy_climate.renewable_share": 1, "information_ecosystem.disinformation_level.RoW": 8}, "draft": true},
+    "ucrania_deterrencia": {"description": "Rússia desistiu", "deltas": {"geopolitics.bilateral_tensions.EU_RoW": 4, "ai_capability.population_penetration.US": 2, "ai_capability.population_penetration.EU": 2, "governance.ai_regulation_maturity.US": 3}, "draft": true},
+    "ucrania_limitada": {"description": "Apenas Donbas/Kherson", "deltas": {"geopolitics.active_conflicts": 1, "geopolitics.bilateral_tensions.EU_RoW": 10, "financial_markets.systemic_risk": 4, "energy_climate.co2_gt_year": 0.2}, "draft": true},
+    "ucrania_nuclear": {"description": "Escalada nuclear tática", "deltas": {"geopolitics.active_conflicts": 5, "geopolitics.bilateral_tensions.US_CN": 20, "geopolitics.bilateral_tensions.EU_RoW": 35, "financial_markets.systemic_risk": 30, "financial_markets.global_index": -25, "information_ecosystem.media_trust": -10}, "draft": true},
+
+    "chatgpt_irrelevante": {"description": "Lançamento incremental", "deltas": {"ai_capability.population_penetration.US": 1, "ai_capability.population_penetration.EU": 0.5}, "draft": true},
+    "chatgpt_open": {"description": "Concorrente open-source", "deltas": {"tech_industry.bigtech_concentration.US": -2, "ai_capability.population_penetration.US": 3, "ai_capability.population_penetration.RoW": 2, "governance.ai_regulation_maturity.US": -1}, "draft": true},
+    "chatgpt_agi": {"description": "Anúncio de AGI", "deltas": {"ai_capability.frontier_capability.US": 4, "financial_markets.global_index": 10, "financial_markets.systemic_risk": 5, "governance.ai_regulation_maturity.US": 8, "governance.ai_regulation_maturity.EU": 8, "information_ecosystem.media_trust": -3, "geopolitics.bilateral_tensions.US_CN": 6}, "draft": true}
+  }
+}
