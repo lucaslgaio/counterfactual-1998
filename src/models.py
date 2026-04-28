@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import Any, Literal, Optional
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, model_validator
 
 from src.config import SimulationConfig
 
@@ -139,25 +139,37 @@ class TurnResponse(BaseModel):
     event_outcome: EventOutcome
     event_outcome_explanation: Optional[str] = None
     deltas: dict[str, float] = Field(default_factory=dict)
+    delta_explanations: dict[str, str] = Field(default_factory=dict)
     causal_links: list[CausalLink] = Field(default_factory=list)
     confidence: Literal["low", "medium", "high"]
 
-    @field_validator("deltas", mode="before")
+    @model_validator(mode="before")
     @classmethod
-    def _coerce_delta_list(cls, v: Any) -> Any:
-        """Aceita tanto dict[str, float] quanto list[{metric, value}].
+    def _coerce_delta_list(cls, data: Any) -> Any:
+        """Aceita deltas como list[{metric, value, explanation}] ou dict[str, float].
 
         Gemini retorna deltas como array de objetos pra evitar property names
-        com pontos no schema; convertemos pra dict aqui pra manter o resto do
-        sistema inalterado.
+        com pontos no schema. Aqui separamos os valores numéricos (em `deltas`)
+        das explicações curtas (em `delta_explanations`).
         """
-        if isinstance(v, list):
-            return {
-                item["metric"]: float(item["value"])
-                for item in v
-                if isinstance(item, dict) and "metric" in item and "value" in item
-            }
-        return v
+        if not isinstance(data, dict):
+            return data
+        deltas_raw = data.get("deltas")
+        if isinstance(deltas_raw, list):
+            new_deltas: dict[str, float] = {}
+            new_explanations: dict[str, str] = {}
+            for item in deltas_raw:
+                if not isinstance(item, dict) or "metric" not in item or "value" not in item:
+                    continue
+                metric = item["metric"]
+                new_deltas[metric] = float(item["value"])
+                explanation = item.get("explanation", "")
+                if explanation:
+                    new_explanations[metric] = str(explanation).strip()
+            data["deltas"] = new_deltas
+            if "delta_explanations" not in data:
+                data["delta_explanations"] = new_explanations
+        return data
 
 
 # =============================================================================

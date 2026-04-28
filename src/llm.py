@@ -72,8 +72,17 @@ def _build_function_declaration() -> dict:
                                 "type": "NUMBER",
                                 "description": "Delta aditivo (positivo ou negativo).",
                             },
+                            "explanation": {
+                                "type": "STRING",
+                                "description": (
+                                    "Frase curta de 8-15 palavras explicando POR QUE essa "
+                                    "métrica mudou neste turno. Use linguagem concreta e "
+                                    "sociológica (atores, lugares, comportamentos), não "
+                                    "abstrações genéricas."
+                                ),
+                            },
                         },
-                        "required": ["metric", "value"],
+                        "required": ["metric", "value", "explanation"],
                     },
                 },
                 "causal_links": {

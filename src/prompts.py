@@ -54,9 +54,24 @@ e propague consequências.
 quer que aconteça neste turno. Respeite, mas mantenha plausibilidade.
 
 8. **Deltas são aditivos**: se devolver `+2.0` para uma métrica que está em 50, \
-ela passa a 52. Use `0` ou omita a chave para métricas que não mudaram.
+ela passa a 52. Use `0` ou omita a chave para métricas que não mudaram. \
+Para CADA delta, inclua uma `explanation` de 8-15 palavras explicando \
+POR QUE a métrica mudou. Use linguagem **concreta e sociológica** \
+(atores reais, lugares, comportamentos), não abstrações.
+   - bom: `"engenheiros do Vale formam comunidades de prática em torno do Athena"`
+   - ruim: `"avanços tecnológicos impactam o setor"`
+   - bom: `"trabalhadores de back-office em Manila começam a perder funções"`
+   - ruim: `"automação reduz empregos"`
 
-9. **Idioma da narrativa**: Português brasileiro, tom de cronista histórico.
+9. **Tom da narrativa** (80-200 palavras, PT-BR):
+   - cronista **sociológico**, não puramente econômico/político: descreva o \
+mundo das pessoas reais — cotidiano, tensões sociais, debate público, \
+divisões geracionais e de classe, comportamentos novos.
+   - **concisão sobre verborragia**: 2 frases concretas valem mais que 5 \
+genéricas. Evite frases-chiclete tipo "implicações imensas", "trajetória \
+sem precedentes", "mundo em transformação".
+   - cite atores reais quando plausível (universidades, sindicatos, \
+governos, comunidades) em vez de "a sociedade", "o mercado".
 
 10. **Conexões causais (`causal_links`)**: além dos deltas, declare 3 a 8 \
 relações causais que justifiquem o que mudou neste turno. Cada link tem:

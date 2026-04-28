@@ -25,7 +25,7 @@ class SimulationConfig(BaseModel):
     )
 
     temperature: float = Field(
-        default=0.7,
+        default=0.85,
         ge=0.0,
         le=1.0,
         description="Temperature do LLM. Mais alto = mais variação entre runs.",

@@ -278,7 +278,7 @@ def show_response(console: Console, response: TurnResponse, state: State) -> Non
         deltas_table.add_column("métrica", style="dim", no_wrap=True)
         deltas_table.add_column("Δ", justify="right", no_wrap=True)
         deltas_table.add_column("magnitude", no_wrap=True)
-        deltas_table.add_column("descrição", style="white")
+        deltas_table.add_column("por quê", style="white")
 
         for k, v in sorted(response.deltas.items(), key=lambda kv: -abs(kv[1])):
             color = delta_color(k, v)
@@ -286,11 +286,12 @@ def show_response(console: Console, response: TurnResponse, state: State) -> Non
             delta_str = info.format_delta(v) if info else f"{v:+.2f}"
             label = info.short_label if info else k.split(".")[-1]
             arrow = magnitude_arrow(v)
+            explanation = response.delta_explanations.get(k, "")
             deltas_table.add_row(
                 label,
                 f"[{color}]{delta_str}[/{color}]",
                 f"[{color}]{arrow}[/{color}]",
-                f"[dim]{k}[/dim]",
+                explanation if explanation else f"[dim]{k}[/dim]",
             )
         console.print(deltas_table)
         console.print()
@@ -300,6 +301,84 @@ def show_response(console: Console, response: TurnResponse, state: State) -> Non
         console.print()
 
     console.print(f"[dim]confiança do motor: {response.confidence}[/dim]")
+
+
+def show_progress(
+    console: Console,
+    initial_state: State,
+    current_state: State,
+    metric_history: dict[str, list[float]],
+    label: str = "o que mais mudou desde o início",
+    top_n: int = 6,
+) -> None:
+    """Painel de progresso cumulativo: top mudanças em prosa + sparklines por cluster.
+
+    Reutilizado a cada turno (versão compacta, top_n=6) e no outro (top_n=10).
+    """
+    rows = []
+    for key, info in METRICS.items():
+        before = state_metric_value(initial_state, key)
+        after = state_metric_value(current_state, key)
+        delta = after - before
+        pct = (delta / before * 100) if before else 0.0
+        rows.append((key, info, before, after, delta, pct))
+
+    rows.sort(key=lambda r: -abs(r[5]))
+
+    console.print()
+    console.print(f"[bold]{label}[/bold]")
+    console.print()
+
+    shown = 0
+    for key, info, before, after, delta, pct in rows:
+        if abs(delta) < 0.01 or shown >= top_n:
+            continue
+        color = delta_color(key, delta)
+        arrow = magnitude_arrow(delta)
+        sign = "+" if pct >= 0 else ""
+        prose = info.interpret(before, after)
+        console.print(f"  [{color}]{arrow}[/{color}]  {prose}  [dim]({sign}{pct:.1f}%)[/dim]")
+        shown += 1
+    if shown == 0:
+        console.print("  [dim](sem mudanças significativas ainda)[/dim]")
+
+    console.print()
+    console.print("[bold]trajetória[/bold]")
+    console.print()
+
+    for cluster, metrics_list in metrics_by_cluster().items():
+        cluster_table = Table(
+            box=None, show_header=False, padding=(0, 1), title_justify="left"
+        )
+        cluster_table.add_column(style="dim", width=28)
+        cluster_table.add_column(no_wrap=True)
+        cluster_table.add_column(justify="right", style="bold")
+
+        for m in metrics_list:
+            history = metric_history.get(m.key, [])
+            if not history:
+                continue
+            initial = history[0]
+            final = history[-1]
+            if len(history) == 1 or final == initial:
+                spark = "─" * len(history)
+                color = "dim"
+            else:
+                spark = sparkline(history)
+                color = delta_color(m.key, final - initial)
+            cluster_table.add_row(
+                m.short_label,
+                f"[{color}]{spark}[/{color}]",
+                f"{initial:.2f} → {final:.2f}",
+            )
+
+        console.print(Panel(
+            cluster_table,
+            title=f"[cyan]{cluster}[/cyan]",
+            border_style="dim",
+            padding=(0, 1),
+        ))
+    console.print()
 
 
 def show_outro(
@@ -315,63 +394,14 @@ def show_outro(
         f"[bold cyan]FIM DA SIMULAÇÃO[/bold cyan]  ·  {num_turns} turnos rodados",
         style="cyan",
     )
-    console.print()
-
-    # Calcula deltas acumulados
-    rows = []
-    for key, info in METRICS.items():
-        before = state_metric_value(initial_state, key)
-        after = state_metric_value(final_state, key)
-        delta = after - before
-        pct = (delta / before * 100) if before else 0.0
-        rows.append((key, info, before, after, delta, pct))
-
-    # Ordena por |Δ%|
-    rows.sort(key=lambda r: -abs(r[5]))
-
-    # ── Top mudanças com prosa ─────────────────────────────────────────────
-    console.print("[bold]o que mais mudou[/bold]\n")
-    for key, info, before, after, delta, pct in rows[:8]:
-        if abs(delta) < 0.01:
-            continue
-        color = delta_color(key, delta)
-        arrow = magnitude_arrow(delta)
-        sign = "+" if pct >= 0 else ""
-        prose = info.interpret(before, after)
-        console.print(f"  [{color}]{arrow}[/{color}]  {prose}  [dim]({sign}{pct:.1f}%)[/dim]")
-    console.print()
-
-    # ── Sparklines por cluster ─────────────────────────────────────────────
-    console.print("[bold]trajetória das métricas[/bold]\n")
-    for cluster, metrics_list in metrics_by_cluster().items():
-        cluster_table = Table(
-            box=None, show_header=False, padding=(0, 1), title_justify="left"
-        )
-        cluster_table.add_column(style="dim", width=28)
-        cluster_table.add_column(no_wrap=True)
-        cluster_table.add_column(justify="right", style="bold")
-
-        for m in metrics_list:
-            history = metric_history.get(m.key, [])
-            if not history:
-                continue
-            spark = sparkline(history)
-            initial = history[0]
-            final = history[-1]
-            color = delta_color(m.key, final - initial)
-            cluster_table.add_row(
-                m.short_label,
-                f"[{color}]{spark}[/{color}]",
-                f"{initial:.2f} → {final:.2f}",
-            )
-
-        console.print(Panel(
-            cluster_table,
-            title=f"[cyan]{cluster}[/cyan]",
-            border_style="dim",
-            padding=(0, 1),
-        ))
-    console.print()
+    show_progress(
+        console,
+        initial_state,
+        final_state,
+        metric_history,
+        label="o que mais mudou ao longo da simulação",
+        top_n=10,
+    )
     console.print(f"[dim]turno final: {final_state.turn}[/dim]")
     console.print()
 
@@ -429,6 +459,7 @@ def run(num_turns: int, auto: bool, seed: Optional[int], show_manual_flag: bool)
 
         show_response(console, response, state)
 
+        previous_turn = state.turn
         state = apply_deltas(state, response.deltas)
         state = state.model_copy(update={"turn": advance_turn(state.turn)})
         narrative_history.append(response.narrative)
@@ -436,6 +467,17 @@ def run(num_turns: int, auto: bool, seed: Optional[int], show_manual_flag: bool)
 
         for key in METRICS:
             metric_history[key].append(state_metric_value(state, key))
+
+        # Painel cumulativo após cada turno (não no último — quem fecha é show_outro).
+        if i < num_turns - 1:
+            show_progress(
+                console,
+                initial_state,
+                state,
+                metric_history,
+                label=f"estado do mundo até {previous_turn}",
+                top_n=6,
+            )
 
         if i < num_turns - 1 and not auto:
             console.print()
