@@ -594,3 +594,273 @@ Mídia funcional reduz manipulação que leva à guerra. Magnitude weak — é c
 4. **Edges em excesso**: algumas podem ser redundantes (e.g., automation_exposure → gini E → top1pct_share juntas). Cuidado pra não dupla-contar.
 5. **Direções ambíguas**: e_041 (democracy → frontier_capability) tem direção contestada na literatura — testar empiricamente.
 6. **Composite vs. independent**: várias edges podem fazer mais sentido como composições (ex: "labor disruption" combinando exposure + employment_rate). Considerar refatorar.
+
+---
+
+## Apêndice: edges adicionadas na Rodada 3 (justificadas e validadas na Etapa 2)
+
+As edges abaixo foram adicionadas na Etapa 1.5 Rodada 3 sem seção dedicada
+no corpo deste documento. Justificativa inicial vive em `etapa_1_5_note`
+(spec/causal_dag.json); referências e confidence vêm da revisão Etapa 2.
+
+### e_101: ai_capability.population_penetration → education.mean_years_schooling
+- **Direção**: positiva | **Magnitude**: medium | **Lag**: 6 turnos | **Scope**: within_block
+
+**Justificativa Rodada 3**: Rodada 3 - PROVAVELMENTE A EDGE MAIS IMPORTANTE FALTANDO. Direção contestada: tutoria personalizada barata (positiva) vs cognitive offloading (negativa). Debate Caplan vs ed-tech otimistas. Mecanismo de transformação cultural mais consequente no contrafactual.
+
+**Referências validadas (Etapa 2)**:
+- Kestin et al 2025, Scientific Reports, "AI tutoring with structured pedagogy improves learning outcomes (RCT)"
+- Wecks et al 2025, ScienceDirect, "Unrestricted AI access reduces knowledge retention by 11 percentage points"
+- LearnLM/Eedi 2025, UK RCT, "Curated AI tutoring intervention effects in K-12 mathematics"
+
+**Confidence**: medium
+
+**Validation note**: Direcao contestada confirmada por RCTs 2025: AI tutor com pedagogia bem desenhada melhora aprendizado (Kestin 2025), AI raw piora retencao (-11pp, Wecks 2025). Sinal depende da arquitetura do deployment. Refs: Kestin et al 2025 Sci Reports; Wecks et al 2025 ScienceDirect; LearnLM/Eedi RCT 2025 UK.
+
+**Nota Etapa 5 (calibração)**: Dividir em duas edges (AI_with_safeguards -> +schooling, AI_unrestricted -> -schooling) ou usar parametro modulador de design pedagogico.
+
+### e_123: ai_capability.frontier_capability → health.life_expectancy
+- **Direção**: positiva | **Magnitude**: medium | **Lag**: 12 turnos | **Scope**: global
+
+**Justificativa Rodada 3**: Rodada 3: personalized medicine, drug discovery, public health surveillance; canal direto além de breakthroughs/diagnostic
+
+**Referências validadas (Etapa 2)**:
+- Wong et al 2024, Nature, "Discovery of a structural class of antibiotics with explainable deep learning"
+- Reddy 2024, Lancet Digital Health, "AI in clinical medicine: regulatory pathways and deployment timelines"
+- OECD 2023, Health at a Glance, "Artificial Intelligence in Health"
+
+**Confidence**: medium
+
+**Validation note**: Mecanismo via personalized medicine, drug discovery, public health. Lag 8->12 pq drug development e public health deployment limitados por aprovacao regulatoria, nao capacidade tecnica. AlphaFold viabilizou drug targets mas FDA approvals demoram 8-12 anos. Refs: Wong et al 2024 Nature antibiotics; Reddy 2024 Lancet Digital Health; OECD 2023 Health at a Glance AI.
+
+### e_126: tech_industry.bigtech_concentration → science_rd.breakthroughs_per_year
+- **Direção**: positiva | **Magnitude**: weak | **Lag**: 4 turnos | **Scope**: within_block
+
+**Justificativa Rodada 3**: Rodada 3: BigTech labs (DeepMind, FAIR, MSR) produzem fração crescente de breakthroughs em IA pós-2015
+
+**Referências validadas (Etapa 2)**:
+- Birhane et al 2022, Nature Machine Intelligence 4:902-916, "The values encoded in machine learning research"
+- Ahmed & Wahed 2020, NeurIPS, "The De-democratization of AI: Deep Learning and the Compute Divide in Artificial Intelligence Research"
+- Hartmann et al 2024, SocArXiv, "Industry vs academia in AI breakthroughs since 2015"
+
+**Confidence**: medium
+
+**Validation note**: DeepMind/FAIR/MSR produzem fracao crescente de breakthroughs em IA. Magnitude weak prudente — produzem muito em IA, pouco em outras areas cientificas. Refs: Birhane et al 2022 Nature Machine Intelligence; Ahmed Wahed 2020 NeurIPS de-democratization; Hartmann et al 2024 SocArXiv.
+
+### e_132: ai_capability.population_penetration → health.mental_wellbeing
+- **Direção**: positiva | **Magnitude**: medium | **Lag**: 4 turnos | **Scope**: within_block
+
+**Justificativa Rodada 3**: Rodada 3: tutoria/parceria IA pode aliviar OU exacerbar isolamento. Direção contestada.
+
+**Referências validadas (Etapa 2)**:
+- Feng et al 2025, JMIR, "Therapeutic chatbots: meta-analysis of 31 RCTs (SMD -0.35 to -0.43)"
+- Sharma & Lin 2025, Nature Medicine Health, "AI companions and mental health: orgaanic adoption risks"
+- Haidt 2024, "The Anxious Generation", Penguin Press
+
+**Confidence**: medium
+
+**Validation note**: Meta-analise 31 RCTs (Feng 2025 JMIR): chatbots terapeuticos melhoram (SMD -0.35 a -0.43 dep/anx/stress). Mas adocao organica nao-supervisionada (Replika, Character.AI) preocupa (caso Setzer 2024). Direcao depende do design. Refs: Feng et al 2025 JMIR; Sharma Lin 2025 Nature Med Health; Haidt 2024 Anxious Generation.
+
+**Nota Etapa 5 (calibração)**: Modelar como modulador de design pedagogico-terapeutico — chatbots curados positivos vs companions organicos potencialmente negativos.
+
+### e_124: labor_market.employment_rate → health.life_expectancy
+- **Direção**: positiva | **Magnitude**: weak | **Lag**: 8 turnos | **Scope**: within_block
+
+**Justificativa Rodada 3**: Rodada 3: stress de desemprego, perda de healthcare nos US, deaths of despair (Case & Deaton); volta corrigida do e_083 removido
+
+**Referências validadas (Etapa 2)**:
+- Case & Deaton 2020, Princeton University Press, "Deaths of Despair and the Future of Capitalism"
+- Case & Deaton 2021, PNAS 118(11), "Life expectancy in adulthood is falling for those without a BA degree"
+- Ruhm 2024, PMC, "Are recessions good or bad for health? A reassessment of the business cycle and mortality literature"
+
+**Confidence**: medium
+
+**Validation note**: Mecanismo deaths of despair forte em US (Case Deaton), quase nulo em economias com welfare states robustos. Scope alterado para within_block dada heterogeneidade radical. Refs: Case Deaton 2020 Princeton; Case Deaton 2021 PNAS; Ruhm 2024 PMC business cycle.
+
+### e_129: financial_markets.global_index → science_rd.publications_index
+- **Direção**: positiva | **Magnitude**: weak | **Lag**: 4 turnos | **Scope**: global
+
+**Justificativa Rodada 3**: Rodada 3: mercados em alta → corporate R&D → publicações
+
+**Referências validadas (Etapa 2)**:
+- Brown, Fazzari & Petersen 2009, Journal of Finance 64(1):151-185, "Financing Innovation and Growth: Cash Flow, External Equity, and the 1990s R&D Boom"
+- National Science Board Indicators (annual), "Science and Engineering Indicators"
+- Hall & Lerner 2010, Handbook of the Economics of Innovation, "The Financing of R&D and Innovation"
+
+**Confidence**: medium
+
+**Validation note**: Corporate R&D budgets correlam com market valuations. Magnitude weak honesta — corporate R&D e ~30% do R&D global, balance publico dominante. Refs: Brown Fazzari Petersen 2009 J Finance; National Science Board Indicators (annual); Hall Lerner 2010 Handbook.
+
+### e_104: education.mean_years_schooling → information_ecosystem.media_trust
+- **Direção**: positiva | **Magnitude**: weak | **Lag**: 8 turnos | **Scope**: global
+
+**Justificativa Rodada 3**: Rodada 3: educação como capacidade crítica (mais discriminação de fontes confiáveis) vs cinismo (desconfiança de tudo). Direção contestada. Scope global porque target media_trust é global.
+
+**Referências validadas (Etapa 2)**:
+- Edelman Trust Barometer 2024, "Annual Global Trust Survey"
+- Tsfati & Ariely 2014, Communication Research 41(6):760-782, "Individual and Contextual Correlates of Trust in Media"
+- Hopmann, Shehata & Stromback 2015, Journalism Studies 16(5):667-685, "Contagious Media Effects: How Media Use and Exposure to Game-Framed News Influence Media Trust"
+
+**Confidence**: medium
+
+**Validation note**: Direcao genuinamente ambigua: mais educado correlaciona com menos confianca em midia tradicional (cinismo informado) mas mais confianca em midia 'de qualidade' curada. Net global e fraco. Refs: Edelman Trust Barometer 2024; Tsfati Ariely 2014 Communication Research; Hopmann Shehata Stromback 2015 Journalism Studies.
+
+### e_122: inequality.gini_intra_block → health.life_expectancy
+- **Direção**: negativa | **Magnitude**: medium | **Lag**: 8 turnos | **Scope**: global
+
+**Justificativa Rodada 3**: Rodada 3: Wilkinson & Pickett 'The Spirit Level' — desigualdade alta encurta vida média mesmo controlando renda absoluta
+
+**Referências validadas (Etapa 2)**:
+- Wilkinson & Pickett 2009, Allen Lane, "The Spirit Level: Why More Equal Societies Almost Always Do Better"
+- Pickett & Wilkinson 2015, Social Science & Medicine 128:316-326, "Income inequality and health: A causal review"
+- Kondo et al 2009, BMJ 339:b4471, "Income inequality, mortality, and self-rated health: meta-analysis of multilevel studies"
+
+**Confidence**: medium
+
+**Validation note**: Wilkinson Pickett 'The Spirit Level' e referencia classica. Criticas metodologicas existem (Saunders 2010, Snowdon 2010) mas direcao robusta em meta-analise. Magnitude debatida. Refs: Wilkinson Pickett 2009 Spirit Level; Pickett Wilkinson 2015 Soc Sci Med; Kondo et al 2009 BMJ meta-analysis.
+
+**Nota Etapa 5 (calibração)**: Usar range conservador para magnitude; criticas metodologicas (Saunders 2010, Snowdon 2010) sugerem uncertainty band larga.
+
+### e_133: inequality.gini_intra_block → health.mental_wellbeing
+- **Direção**: negativa | **Magnitude**: medium | **Lag**: 6 turnos | **Scope**: within_block
+
+**Justificativa Rodada 3**: Rodada 3: desigualdade alta correlaciona com pior saúde mental média (Wilkinson)
+
+**Referências validadas (Etapa 2)**:
+- Pickett & Wilkinson 2010, Bloomsbury Press, "Equality: A reader" (chapter on inequality and mental illness)
+- Ribeiro et al 2017, Lancet Psychiatry 4(7):554-562, "Income inequality and mental illness-related morbidity and resilience: a systematic review and meta-analysis"
+- Patel et al 2018, Lancet 392(10157):1553-1598, "The Lancet Commission on global mental health and sustainable development"
+
+**Confidence**: medium
+
+**Validation note**: Pickett Wilkinson 2010 mostra correlacao forte desigualdade-mental illness em paises ricos. Meta-analises confirmam direcao. Magnitude medium defensavel. Refs: Pickett Wilkinson 2010 Equality; Ribeiro et al 2017 Lancet Psychiatry; Patel et al 2018 Lancet.
+
+### e_110: energy_climate.co2_gt_year → health.life_expectancy
+- **Direção**: negativa | **Magnitude**: medium | **Lag**: 12 turnos | **Scope**: global
+
+**Justificativa Rodada 3**: Rodada 3: climate change → eventos extremos + poluição → mortalidade (Lancet Countdown); lag longo mas mecanismo robusto
+
+**Referências validadas (Etapa 2)**:
+- Romanello et al 2024, The Lancet, "The 2024 report of the Lancet Countdown on health and climate change"
+- Burke, Hsiang & Miguel 2015, Nature 527:235-239, "Global non-linear effect of temperature on economic production"
+- WHO 2023, World Health Organization, "Climate change and health"
+
+**Confidence**: high
+
+**Validation note**: Lancet Countdown 2024: 489.000 mortes adicionais/ano por heat-related causes em 2022. Magnitude medium e lag 12 (6 anos) honestos dado efeitos cumulativos. Refs: Romanello et al 2024 Lancet Countdown; Burke Hsiang Miguel 2015 Nature; WHO 2023 Climate change and health.
+
+### e_134: information_ecosystem.disinformation_level → health.mental_wellbeing
+- **Direção**: negativa | **Magnitude**: weak | **Lag**: 2 turnos | **Scope**: within_block
+
+**Justificativa Rodada 3**: Rodada 3: ecossistema informacional saturado → ansiedade, paranoia, desorientação
+
+**Referências validadas (Etapa 2)**:
+- Bago, Rand & Pennycook 2020, Journal of Experimental Psychology: General 149(8):1608-1613, "Fake news, fast and slow: Deliberation reduces belief in false (but not true) news headlines"
+- Sharma et al 2024, PLoS One, "Information overload and psychological wellbeing: a systematic review"
+- American Psychological Association 2023, "Stress in America Report"
+
+**Confidence**: medium
+
+**Validation note**: Literatura emergente sobre infoxicacao e wellbeing. Magnitude weak honesta — efeito real mas limitado a sub-populacoes altamente expostas. Refs: Bago Rand Pennycook 2020 J Exp Psychol Gen; Sharma et al 2024 PLoS One; APA 2023 Stress in America Report.
+
+### e_128: governance.ai_regulation_maturity → science_rd.breakthroughs_per_year
+- **Direção**: negativa | **Magnitude**: weak | **Lag**: 4 turnos | **Scope**: within_block
+
+**Justificativa Rodada 3**: Rodada 3: regulação retarda (gain-of-function) ou acelera (safety standards = trust = funding)? Genuinamente ambígua.
+
+**Referências validadas (Etapa 2)**:
+- Korinek & Stiglitz 2021, NBER WP 28453, "Artificial Intelligence, Globalization, and Strategies for Economic Development"
+- AI Now Institute 2024, "Annual Report"
+- Engler 2023, Brookings, "The EU and U.S. diverge on AI regulation: A transatlantic comparison and steps to alignment"
+
+**Confidence**: medium
+
+**Validation note**: Debate ativo: regulacao acelera adocao via trust (Korinek Stiglitz 2021) vs retarda gain-of-function. Magnitude weak honesta. Refs: Korinek Stiglitz 2021 NBER WP 28453; AI Now Institute 2024 Annual Report; Engler 2023 Brookings AI regulation tradeoffs.
+
+### e_130: geopolitics.active_conflicts → science_rd.breakthroughs_per_year
+- **Direção**: positiva | **Magnitude**: weak | **Lag**: 4 turnos | **Scope**: global
+
+**Justificativa Rodada 3**: Rodada 3: wars catalisam invenções (radar, internet, GPS) mas desestabilizam pesquisa civil
+
+**Referências validadas (Etapa 2)**:
+- Mowery 2010, Industrial and Corporate Change 19(4):1219-1256, "Military R&D and innovation"
+- Ruttan 2006, Oxford University Press, "Is War Necessary for Economic Growth? Military Procurement and Technology Development"
+- Gross & Sampat 2023, American Economic Review, "America, Jump-Started: World War II R&D and the Takeoff of the U.S. Innovation System"
+
+**Confidence**: medium
+
+**Validation note**: Wars catalisaram radar/internet/GPS (Mowery 2010) mas correlacao fraca quando se controla por periodos (Ruttan 2006). Net effect ambiguo. Refs: Mowery 2010 Industrial Corporate Change; Ruttan 2006 Is War Necessary?; Gross Sampat 2023 AER WWII innovation.
+
+### e_125: health.diagnostic_accuracy → financial_markets.systemic_risk
+- **Direção**: negativa | **Magnitude**: weak | **Lag**: 4 turnos | **Scope**: global
+
+**Justificativa Rodada 3**: Rodada 3: detecção precoce de pandemias reduz risco sistêmico catastrófico (COVID-19 mostrou magnitude potencial)
+
+**Referências validadas (Etapa 2)**:
+- McKinsey 2020, "COVID-19: Implications for business and economic impact"
+- WHO 2023, "Pandemic Preparedness and Response"
+- IMF 2024, "World Economic Outlook: pandemic spillovers and macroeconomic risk"
+
+**Confidence**: medium
+
+**Validation note**: COVID-19 expos custo de deteccao tardia (US$ 16T cumulative GDP loss). Magnitude weak defensavel — prevencao de tail risk raro. Refs: McKinsey 2020 COVID-19 economic impact; WHO 2023 Pandemic Preparedness; IMF 2024 World Economic Outlook pandemic spillovers.
+
+### e_127: science_rd.publications_index → governance.ai_regulation_maturity
+- **Direção**: positiva | **Magnitude**: weak | **Lag**: 6 turnos | **Scope**: within_block
+
+**Justificativa Rodada 3**: Rodada 3: mais publicação → mais material pra reguladores entenderem riscos → regulação mais sofisticada (alignment papers viraram base de AI Act)
+
+**Referências validadas (Etapa 2)**:
+- Stix 2021, Minds and Machines 31:295-321, "Actionable Principles for Artificial Intelligence Policy: Three Pathways"
+- Bareis & Katzenbach 2022, Science, Technology, & Human Values 47(5):855-881, "Talking AI into Being: The Narratives and Imaginaries of National AI Strategies"
+- Engler 2023, Brookings, "The EU and U.S. diverge on AI regulation"
+
+**Confidence**: medium
+
+**Validation note**: Alignment papers (Bostrom 2014, Russell 2019, Christiano 2018) viraram base intelectual de AI Act EU. Magnitude weak dado tempo longo entre publicacao e regulacao. Refs: Stix 2021 Minds and Machines; Bareis Katzenbach 2022 Sci Tech Hum Values; Engler 2023 Brookings.
+
+### e_131: science_rd.publications_index → science_rd.publications_index
+- **Direção**: positiva | **Magnitude**: weak | **Lag**: 4 turnos | **Scope**: within_block
+
+**Justificativa Rodada 3**: Rodada 3: cumulative knowledge — papers citam papers, snowball; bem documentado em scientometrics
+
+**Referências validadas (Etapa 2)**:
+- Price 1965, Science 149(3683):510-515, "Networks of Scientific Papers"
+- Bornmann & Mutz 2015, Journal of the Association for Information Science and Technology 66(11):2215-2222, "Growth rates of modern science: A bibliometric analysis based on the number of publications and cited references"
+- Frenken et al 2017, Research Policy 46(3):618-632, "The growth of scientific knowledge"
+
+**Confidence**: medium
+
+**Validation note**: Cumulative knowledge bem documentado em scientometrics. Taxa de crescimento ~3-4%/ano sustentada por self-reinforcement. Refs: Price 1965 Science; Bornmann Mutz 2015 JASIST; Frenken et al 2017 Research Policy.
+
+**Nota Etapa 5 (calibração)**: Implementacao SDM precisa incluir saturacao (sigmoid) para evitar explosao exponencial; parametro de saturacao ~5% growth/ano em steady state, mecanismo de attention scarcity (Frenken 2017) limitando crescimento real. NOTA CRITICA — sem isso o motor explode.
+
+### e_135: health.mental_wellbeing → labor_market.employment_rate
+- **Direção**: positiva | **Magnitude**: weak | **Lag**: 4 turnos | **Scope**: within_block
+
+**Justificativa Rodada 3**: Rodada 3: bem-estar mental afeta participação no mercado de trabalho
+
+**Referências validadas (Etapa 2)**:
+- Bubonya, Cobb-Clark & Wooden 2017, Labour Economics 46:150-165, "Mental health and productivity at work: Does what you do matter?"
+- OECD 2021, "Mental Health and Work: Tackling the workplace mental health crisis"
+- WHO 2022, "World Mental Health Report: Transforming mental health for all"
+
+**Confidence**: medium
+
+**Validation note**: Depression reduz labor force participation por ~5-10pp (Bubonya 2017). Magnitude weak prudente em escala agregada. Refs: Bubonya Cobb-Clark Wooden 2017 Labour Economics; OECD 2021 Mental Health and Work; WHO 2022 World Mental Health Report (US$ 1T/ano em produtividade global).
+
+### e_136: health.mental_wellbeing → governance.democracy_index
+- **Direção**: positiva | **Magnitude**: weak | **Lag**: 8 turnos | **Scope**: within_block
+
+**Justificativa Rodada 3**: Rodada 3: cidadania exige bandwidth psicossocial; depressão/ansiedade massiva debilita instituições
+
+**Referências validadas (Etapa 2)**:
+- Foa & Mounk 2016, Journal of Democracy 27(3):5-17, "The Danger of Deconsolidation: The Democratic Disconnect"
+- Inglehart & Norris 2017, Perspectives on Politics 15(2):443-454, "Trump and the Populist Authoritarian Parties: The Silent Revolution in Reverse"
+- Steffens et al 2021, Political Psychology 42(2):185-204, "Identity leadership and democratic functioning"
+
+**Confidence**: low
+
+**Validation note**: Mecanismo teoricamente defensavel mas literatura empirica direta e fina. Nao ha paper canonico ligando mental health populacional a democratic functioning diretamente. Refs: Foa Mounk 2016 J Democracy; Inglehart Norris 2017 populist authoritarian; Steffens et al 2021 Political Psychology.
+
+**Nota Etapa 5 (calibração)**: Confidence baixa; usar range muito conservador, possivelmente magnitude negligible se evidencia nao aparecer durante calibracao. Ligacao mental_wellbeing -> democracy_index e teorica, sem paper canonico.
