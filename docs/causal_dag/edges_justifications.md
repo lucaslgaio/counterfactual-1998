@@ -195,6 +195,15 @@ Regulação efetiva de plataformas + obrigatoriedade de disclosure de IA reduz d
 
 Imediato: mais desinfo no ecossistema → confusão sobre o que é confiável → trust em mídia tradicional cai (junto com tudo). Forma sigmoid porque trust tem floor.
 
+**Referências validadas (Etapa 2)**:
+- Allcott & Gentzkow 2017, Journal of Economic Perspectives 31(2):211-236, "Social Media and Fake News in the 2016 Election"
+- Edelman 2017-2024, longitudinal, "Edelman Trust Barometer"
+- Newman et al 2024, Reuters Institute, "Digital News Report 2024"
+
+**Confidence**: high
+
+**Validation note**: Canal estabelecido empiricamente. Edelman Trust Barometer cai monotonicamente em paises com exposicao alta a fake news (US, Brasil, Polonia 2016+). Magnitude strong robusta. Refs: Allcott Gentzkow 2017 J Econ Perspectives; Edelman Trust Barometer 2017-2024 longitudinal; Newman et al 2024 Reuters Digital News Report.
+
 ### e_029: ai_capability.population_penetration → information_ecosystem.disinformation_level
 - **Direção**: positiva | **Magnitude**: medium | **Lag**: 4 turnos | **Scope**: within_block
 
