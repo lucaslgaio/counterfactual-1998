@@ -14,6 +14,12 @@ Cada uma das 87 edges em `spec/causal_dag.json` tem uma seção curta abaixo. **
 >
 > Edges e_024, e_063, e_064 mudaram forma estrutural para `sigmoid_temporal` (dose-resposta de disinformação mudou pós-2016).
 
+> **Etapa 1.5 — Rodada 2**:
+> - 7 edges foram removidas (e_005, e_015, e_041, e_042, e_054, e_083, e_087). Justificativas em `edges_removed.md`.
+> - e_006 foi dividida em e_006a (trading risk, lag 1) e e_006b (infrastructure dependency, lag 8).
+> - ~26 edges tiveram magnitude/lag/contested ajustados. Notas inline em cada edge alterada (`etapa_1_5_note`).
+> - Total de edges: 87 → 81 (-7 removidas, +1 split).
+
 Convenção: magnitude qualitativa, lag em turnos (1 turno = 1 semestre), scope = within_block / spillover / global.
 
 Onde indico referências, sugiro papers que tenho confiança razoável que existem; onde houver dúvida, marquei `[verificar referência]`.
