@@ -74,10 +74,28 @@ Penetração maior cria demanda por trabalhadores que treinam, mantêm, customiz
 
 Automação de tarefas rotineiras intermediárias polariza mercado de trabalho (alta-skilled e low-skilled crescem; middle encolhe), aumentando Gini. Autor (2014) "Skill Mismatch" e Autor & Dorn (2013) documentam.
 
-### e_010: labor_market.automation_exposure → inequality.top1pct_share
-- **Direção**: positiva | **Magnitude**: medium | **Lag**: 4 turnos | **Scope**: global
+**Referências validadas (Etapa 2)**:
+- Acemoglu & Restrepo 2022, Econometrica 90(5):1973-2016, "Tasks, Automation, and the Rise in U.S. Wage Inequality"
+- BIS Working Paper 1135 2024, "Automation, labor share and AI"
+- IMF Staff Discussion Note 2024, "Gen AI: Artificial Intelligence and the Future of Work"
 
-Donos de capital de IA capturam parte significativa dos ganhos. Brynjolfsson & McAfee "Race Against the Machine" 2011 [verificar referência exata] argumenta isso explicitamente.
+**Confidence**: high
+
+**Validation note**: Magnitude strong robusta; 50-70% da variancia salarial US 1980-2016 explicada por task displacement. Heterogeneidade entre blocos (forte US/EU, mais fraca CN/RoW pre-2010). Refs: Acemoglu & Restrepo 2022 Econometrica; BIS WP 1135 2024; IMF SDN 2024 Gen AI.
+
+### e_010: labor_market.automation_exposure → inequality.top1pct_share
+- **Direção**: positiva | **Magnitude**: medium | **Lag**: 6 turnos | **Scope**: global
+
+Donos de capital de IA capturam parte significativa dos ganhos. Brynjolfsson & McAfee "Race Against the Machine" 2011 argumenta isso explicitamente.
+
+**Referências validadas (Etapa 2)**:
+- Piketty, Saez & Zucman 2018, NBER WP 22945 / QJE 133(2):553-609, "Distributional National Accounts: Methods and Estimates for the United States"
+- Moll, Rachel & Restrepo 2025, "Uneven Growth: Automation's Impact on Income and Wealth Inequality"
+- Alvaredo, Atkinson, Piketty & Saez 2013, Journal of Economic Perspectives 27(3):3-20, "The Top 1 Percent in International and Historical Perspective"
+
+**Confidence**: medium
+
+**Validation note**: Direcao robusta via 3 canais (capital share, entrepreneurial returns, CEO bargaining). Magnitude heterogenea por bloco — forte em US/UK, fraca em Japao/Alemanha/Nordicos. Lag 4->6 pq top share reage mais lento que gini geral. Refs: Piketty Saez Zucman 2018 NBER; Moll Rachel Restrepo 2025; Alvaredo et al 2013 JEP.
 
 ### e_011: labor_market.employment_rate → inequality.global_gini
 - **Direção**: negativa | **Magnitude**: medium | **Lag**: 2 turnos | **Scope**: global
@@ -407,6 +425,15 @@ Auto-saturação: à medida que penetration aproxima do teto, taxa de cresciment
 - **Direção**: negativa | **Magnitude**: forte | **Lag**: 0 turnos | **Scope**: global
 
 Risk ↑ → markets ↓ imediatamente. Lag-0.
+
+**Referências validadas (Etapa 2)**:
+- Brunnermeier 2009, Journal of Economic Perspectives 23(1):77-100, "Deciphering the Liquidity and Credit Crunch 2007-2008"
+- Adrian & Brunnermeier 2016, American Economic Review 106(7):1705-41, "CoVaR"
+- Bernanke 2018, FRBSF Brookings Paper, "The Real Effects of the Financial Crisis"
+
+**Confidence**: high
+
+**Validation note**: Edge mais empiricamente robusta do DAG. Cada crise sistemica documentada (1987, 1998 LTCM, 2000 dotcom, 2008 GFC, 2020 COVID, 2023 SVB) deprime mercados em tempo real. Refs: Brunnermeier 2009 J Econ Perspectives; Adrian Brunnermeier 2016 AER (CoVaR); Bernanke 2018 FRBSF.
 
 ### e_076: financial_markets.global_index → financial_markets.systemic_risk
 - **Direção**: positiva | **Magnitude**: weak | **Lag**: 6 turnos | **Scope**: global
