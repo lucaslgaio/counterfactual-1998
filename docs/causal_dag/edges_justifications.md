@@ -19,6 +19,15 @@ A capacidade de fronteira da IA expande o conjunto de tarefas economicamente aut
 
 **A validar**: magnitude "strong" vs. possível "medium" se considerarmos fricção de adoção institucional; lag de 2 turnos (1 ano) pode subestimar.
 
+**Referências validadas (Etapa 2)**:
+- Acemoglu & Restrepo 2022, Econometrica 90(5):1973-2016, "Tasks, Automation, and the Rise in U.S. Wage Inequality"
+- McKinsey Global Institute 2024, "AI in the Workplace"
+- Brynjolfsson, Rock & Syverson 2021, AEJ: Macroeconomics 13(1):333-72, "The Productivity J-Curve: How Intangibles Complement General Purpose Technologies"
+
+**Confidence**: high
+
+**Validation note**: Mecanismo central do framework Acemoglu/Restrepo task displacement. Magnitude strong consistente. Lag 2 (1 ano) e prazo tipico tech-to-deployment. Refs: Acemoglu Restrepo 2022 Econometrica; McKinsey Global Institute 2024; Brynjolfsson Rock Syverson 2021 AEJ Macro.
+
 ### e_002: ai_capability.population_penetration → labor_market.employment_rate
 - **Direção**: negativa | **Magnitude**: medium | **Lag**: 4 turnos | **Scope**: within_block
 
