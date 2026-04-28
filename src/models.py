@@ -1,9 +1,9 @@
 """Pydantic models para estado, eventos, choques e respostas de turno."""
 from __future__ import annotations
 
-from typing import Literal, Optional
+from typing import Any, Literal, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from src.config import SimulationConfig
 
@@ -141,6 +141,23 @@ class TurnResponse(BaseModel):
     deltas: dict[str, float] = Field(default_factory=dict)
     causal_links: list[CausalLink] = Field(default_factory=list)
     confidence: Literal["low", "medium", "high"]
+
+    @field_validator("deltas", mode="before")
+    @classmethod
+    def _coerce_delta_list(cls, v: Any) -> Any:
+        """Aceita tanto dict[str, float] quanto list[{metric, value}].
+
+        Gemini retorna deltas como array de objetos pra evitar property names
+        com pontos no schema; convertemos pra dict aqui pra manter o resto do
+        sistema inalterado.
+        """
+        if isinstance(v, list):
+            return {
+                item["metric"]: float(item["value"])
+                for item in v
+                if isinstance(item, dict) and "metric" in item and "value" in item
+            }
+        return v
 
 
 # =============================================================================

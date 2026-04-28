@@ -19,14 +19,13 @@ from src.prompts import SYSTEM_PROMPT, build_user_message
 
 
 def _build_function_declaration() -> dict:
-    """Schema da função `advance_turn` em formato Gemini (JSON Schema com tipos uppercase)."""
-    delta_properties = {
-        key: {
-            "type": "NUMBER",
-            "description": f"Delta aditivo (positivo ou negativo) aplicado a {key}.",
-        }
-        for key in list_metric_keys()
-    }
+    """Schema da função `advance_turn` em formato Gemini (JSON Schema com tipos uppercase).
+
+    Os deltas são passados como ARRAY de {metric, value} em vez de OBJECT
+    com 24 propriedades nomeadas — Gemini engasga em MALFORMED_FUNCTION_CALL
+    quando o schema tem property names com pontos (ex: 'ai_capability.frontier_capability').
+    """
+    valid_metrics_str = ", ".join(list_metric_keys())
 
     return {
         "name": "advance_turn",
@@ -57,12 +56,25 @@ def _build_function_declaration() -> dict:
                     "description": "Justificativa quando o outcome não foi 'ocorreu' ou 'N/A'.",
                 },
                 "deltas": {
-                    "type": "OBJECT",
-                    "properties": delta_properties,
+                    "type": "ARRAY",
                     "description": (
-                        "Deltas aditivos. Inclua apenas métricas que mudaram. "
-                        "Métricas omitidas permanecem inalteradas."
+                        "Lista de deltas aditivos. Inclua apenas métricas que mudaram. "
+                        f"O campo 'metric' deve ser exatamente uma destas: {valid_metrics_str}."
                     ),
+                    "items": {
+                        "type": "OBJECT",
+                        "properties": {
+                            "metric": {
+                                "type": "STRING",
+                                "description": "Métrica afetada, formato 'dimensao.metrica'.",
+                            },
+                            "value": {
+                                "type": "NUMBER",
+                                "description": "Delta aditivo (positivo ou negativo).",
+                            },
+                        },
+                        "required": ["metric", "value"],
+                    },
                 },
                 "causal_links": {
                     "type": "ARRAY",
