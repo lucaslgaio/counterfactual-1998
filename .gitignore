@@ -16,3 +16,9 @@ runs/
 .DS_Store
 .idea/
 .vscode/
+
+# Frontend (Node.js)
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/public/runs/
