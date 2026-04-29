@@ -1,0 +1,2 @@
+turn_label,turn_index,value,metric_key,block,confidence,source_url,notes
+PLACEHOLDER,-1,,inequality.gini_intra_block,EU,0.0,https://wid.world/,WID Gini for EU aggregate — needs direct download.

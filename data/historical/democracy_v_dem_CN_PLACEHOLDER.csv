@@ -1,0 +1,2 @@
+turn_label,turn_index,value,metric_key,block,confidence,source_url,notes
+PLACEHOLDER,-1,,governance.democracy_index,CN,0.0,https://v-dem.net/,V-Dem index CN — needs direct download.

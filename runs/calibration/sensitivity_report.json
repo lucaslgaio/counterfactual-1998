@@ -1,0 +1,182 @@
+{
+  "baseline_objective": 0.060438370622879566,
+  "perturbation": 0.2,
+  "parameters": [
+    {
+      "edge_id": "e_002",
+      "parameter_name": "alpha",
+      "calibrated_value": -0.019704588272113504,
+      "elasticity": 0.004291207257877013,
+      "classification": "robust",
+      "obj_at_minus": 0.06049085510411956,
+      "obj_at_plus": 0.0603871136742511
+    },
+    {
+      "edge_id": "e_004",
+      "parameter_name": "alpha",
+      "calibrated_value": 0.059608978262627586,
+      "elasticity": 0.0,
+      "classification": "robust",
+      "obj_at_minus": 0.060438370622879566,
+      "obj_at_plus": 0.060438370622879566
+    },
+    {
+      "edge_id": "e_004",
+      "parameter_name": "beta",
+      "calibrated_value": 4.003664599331337,
+      "elasticity": 0.0,
+      "classification": "robust",
+      "obj_at_minus": 0.060438370622879566,
+      "obj_at_plus": 0.060438370622879566
+    },
+    {
+      "edge_id": "e_010",
+      "parameter_name": "alpha",
+      "calibrated_value": 0.040182050722101965,
+      "elasticity": 0.0,
+      "classification": "robust",
+      "obj_at_minus": 0.060438370622879566,
+      "obj_at_plus": 0.060438370622879566
+    },
+    {
+      "edge_id": "e_012",
+      "parameter_name": "alpha",
+      "calibrated_value": 0.019851802854851455,
+      "elasticity": 0.0,
+      "classification": "robust",
+      "obj_at_minus": 0.060438370622879566,
+      "obj_at_plus": 0.060438370622879566
+    },
+    {
+      "edge_id": "e_013",
+      "parameter_name": "alpha",
+      "calibrated_value": 0.029893151909559244,
+      "elasticity": 0.0,
+      "classification": "robust",
+      "obj_at_minus": 0.060438370622879566,
+      "obj_at_plus": 0.060438370622879566
+    },
+    {
+      "edge_id": "e_022",
+      "parameter_name": "alpha",
+      "calibrated_value": 4.05694024627299,
+      "elasticity": 0.030967685193823934,
+      "classification": "robust",
+      "obj_at_minus": 0.060992447700533824,
+      "obj_at_plus": 0.06024379312650303
+    },
+    {
+      "edge_id": "e_032",
+      "parameter_name": "alpha",
+      "calibrated_value": 0.0492326944646985,
+      "elasticity": 0.0006219275538197441,
+      "classification": "robust",
+      "obj_at_minus": 0.06044647457577795,
+      "obj_at_plus": 0.06043143926057862
+    },
+    {
+      "edge_id": "e_032",
+      "parameter_name": "beta",
+      "calibrated_value": 30.00018306566291,
+      "elasticity": 0.00041699171999539834,
+      "classification": "robust",
+      "obj_at_minus": 0.06043261825434197,
+      "obj_at_plus": 0.06044269917438987
+    },
+    {
+      "edge_id": "e_034",
+      "parameter_name": "alpha",
+      "calibrated_value": 0.04011457712614242,
+      "elasticity": 0.000466409010646316,
+      "classification": "robust",
+      "obj_at_minus": 0.06044400842300903,
+      "obj_at_plus": 0.060432732822750114
+    },
+    {
+      "edge_id": "e_034",
+      "parameter_name": "beta",
+      "calibrated_value": 30.000311148263783,
+      "elasticity": 0.0003580665514317419,
+      "classification": "robust",
+      "obj_at_minus": 0.060433397611996266,
+      "obj_at_plus": 0.0604420539955735
+    },
+    {
+      "edge_id": "e_045",
+      "parameter_name": "alpha",
+      "calibrated_value": 0.002,
+      "elasticity": 0.0014419061263305872,
+      "classification": "robust",
+      "obj_at_minus": 0.060438370622879566,
+      "obj_at_plus": 0.06047322920562619
+    },
+    {
+      "edge_id": "e_075",
+      "parameter_name": "alpha",
+      "calibrated_value": -0.9941042315106221,
+      "elasticity": 0.0,
+      "classification": "robust",
+      "obj_at_minus": 0.060438370622879566,
+      "obj_at_plus": 0.060438370622879566
+    },
+    {
+      "edge_id": "e_081",
+      "parameter_name": "alpha",
+      "calibrated_value": -0.03,
+      "elasticity": 0.007220793733782485,
+      "classification": "robust",
+      "obj_at_minus": 0.06061293582602905,
+      "obj_at_plus": 0.060438370622879566
+    },
+    {
+      "edge_id": "e_088",
+      "parameter_name": "alpha",
+      "calibrated_value": -0.009999999999999995,
+      "elasticity": 0.006071806340048135,
+      "classification": "robust",
+      "obj_at_minus": 0.06058515865565164,
+      "obj_at_plus": 0.060438370622879566
+    },
+    {
+      "edge_id": "e_095",
+      "parameter_name": "alpha",
+      "calibrated_value": 0.5117916230554651,
+      "elasticity": 0.0,
+      "classification": "robust",
+      "obj_at_minus": 0.060438370622879566,
+      "obj_at_plus": 0.060438370622879566
+    },
+    {
+      "edge_id": "e_110",
+      "parameter_name": "alpha",
+      "calibrated_value": -0.037500000000000006,
+      "elasticity": 0.06867676958263678,
+      "classification": "robust",
+      "obj_at_minus": 0.06209865544416657,
+      "obj_at_plus": 0.060438370622879566
+    },
+    {
+      "edge_id": "e_122",
+      "parameter_name": "alpha",
+      "calibrated_value": -1.9379191475974062,
+      "elasticity": 0.3122648789349691,
+      "classification": "important",
+      "obj_at_minus": 0.06345639366734183,
+      "obj_at_plus": 0.06496945977264941
+    },
+    {
+      "edge_id": "e_123",
+      "parameter_name": "alpha",
+      "calibrated_value": 0.07882321359527836,
+      "elasticity": 0.05258005044091607,
+      "classification": "robust",
+      "obj_at_minus": 0.061708759188937756,
+      "obj_at_plus": 0.06043912308718849
+    }
+  ],
+  "summary": {
+    "critical": 0,
+    "important": 1,
+    "robust": 18
+  }
+}

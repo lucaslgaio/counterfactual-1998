@@ -1,0 +1,51 @@
+{
+  "weighted_error": 0.060438370622879566,
+  "per_series_mae_normalized": {
+    "geopolitics.active_conflicts": 0.060460823171646146,
+    "energy_climate.co2_gt_year": 0.0603266784054623,
+    "labor_market.employment_rate": 0.13130278186908095,
+    "financial_markets.global_index": 0.012759011811320607,
+    "health.life_expectancy": 0.053567031461707694,
+    "energy_climate.renewable_share": 0.02934916374784897,
+    "inequality.top1pct_share": 0.07099783819929718
+  },
+  "coverage": {
+    "geopolitics.active_conflicts": {
+      "non_nan_points": 58,
+      "confidence": 0.7,
+      "first_turn": 0
+    },
+    "energy_climate.co2_gt_year": {
+      "non_nan_points": 58,
+      "confidence": 0.8,
+      "first_turn": 0
+    },
+    "labor_market.employment_rate": {
+      "non_nan_points": 58,
+      "confidence": 0.7,
+      "first_turn": 0
+    },
+    "financial_markets.global_index": {
+      "non_nan_points": 58,
+      "confidence": 0.6,
+      "first_turn": 0
+    },
+    "health.life_expectancy": {
+      "non_nan_points": 58,
+      "confidence": 0.8,
+      "first_turn": 0
+    },
+    "energy_climate.renewable_share": {
+      "non_nan_points": 58,
+      "confidence": 0.7,
+      "first_turn": 0
+    },
+    "inequality.top1pct_share": {
+      "non_nan_points": 58,
+      "confidence": 0.6,
+      "first_turn": 0
+    }
+  },
+  "violations": [],
+  "at_boundary_count": 5
+}

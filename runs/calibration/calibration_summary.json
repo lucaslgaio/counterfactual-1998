@@ -1,0 +1,17 @@
+{
+  "method": "L-BFGS-B",
+  "n_parameters": 19,
+  "final_objective": 0.062085822625532285,
+  "initial_objective": 0.0833478675258399,
+  "improvement_pct": 25.510004672544095,
+  "weighted_error": 0.060438370622879566,
+  "violations_total": 0,
+  "at_boundary_count": 5,
+  "sensitivity_summary": {
+    "critical": 0,
+    "important": 1,
+    "robust": 18
+  },
+  "n_series": 7,
+  "seconds_elapsed": 69.32705092430115
+}
