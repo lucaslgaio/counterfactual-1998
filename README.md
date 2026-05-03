@@ -103,6 +103,53 @@ Espera-se 237 testes passando quando todas as etapas estiverem mergeadas:
 - **Etapa 5**: calibração de alphas contra 1998–2024 — `src/calibration/`
 - **Etapa 6**: cronista LLM (Gemini Flash) — `src/chronicler/`
 - **Etapa 7**: frontend React (este PR migra do repo Lovable para `frontend/`)
+- **Etapa 8 / Modo Jogo**: jogador como CEO de lab de IA em 1998 — `src/game/` + `src/api/`
+
+## Modo Jogo
+
+Transforma o simulador em jogo single-player: você é CEO de um lab de IA fronteira em 1998 e tem 10 turnos (5 anos) para cumprir uma missão sem causar colapso institucional.
+
+Arquitetura em duas camadas:
+
+- **`src/game/`** — orquestra turn-by-turn. Resolve ações canônicas (templates) ou livres (interpretadas pelo GM-LLM), faz roll determinístico, injeta deltas como exógenos no motor SDM (que permanece intocado em sua lógica core).
+- **`src/api/`** — FastAPI HTTP que expõe o jogo ao frontend. Storage in-memory (single-process).
+- **`frontend/src/pages/Play.tsx`** — UI rodando em `/play`. Dashboard de métricas + crônica + textarea de ação livre + 5 chips de sugestão canônica.
+
+Quatro guardrails do GM-LLM documentados em [docs/game/gm_design.md](docs/game/gm_design.md): rubrica conservadora no prompt, CATEGORY_CAPS pós-retorno, success_p + roll determinístico, logging estruturado em `runs/game_{id}/gm_log.jsonl`.
+
+### Como rodar (dev)
+
+Terminal 1 — backend (porta 8000):
+
+```bash
+source .venv/bin/activate
+pip install -e .  # ou apenas: pip install fastapi 'uvicorn[standard]'
+uvicorn src.api.main:app --reload --port 8000
+```
+
+Para usar ações livres é preciso `GEMINI_API_KEY` (ou `GOOGLE_API_KEY`) no ambiente. Sem chave, ações canônicas continuam funcionando — o servidor responde 503 só para ações livres.
+
+Terminal 2 — frontend (porta 5173):
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Abre em `http://localhost:5173/play`. CORS já configurado para `localhost:5173` em `src/api/main.py` (envvar `CORS_ORIGINS` para origens extras).
+
+### Endpoints da API
+
+- `GET  /game/missions` — catálogo de missões
+- `GET  /game/canonical_actions` — catálogo das 5 ações canônicas
+- `POST /game` — cria partida `{seed, mission_id}` → `{game_id, state}`
+- `GET  /game/{id}/state` — snapshot completo
+- `GET  /game/{id}/history` — lista de TurnRecord
+- `POST /game/{id}/action` — submete `{type: canonical|free, action_id?, prompt?}`
+- `DELETE /game/{id}` — descarta partida
+
+Docs interativas: `http://localhost:8000/docs`.
 
 ## Frontend
 
