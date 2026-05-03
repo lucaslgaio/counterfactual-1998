@@ -27,8 +27,14 @@ export default function Splash() {
 
         <div className="mt-12 flex flex-wrap justify-center gap-4">
           <Link
+            to="/play"
+            className="font-mono text-sm uppercase tracking-widest px-6 py-3 border border-amber text-amber bg-amber/5 hover:bg-amber/15 transition-colors glow-cyan"
+          >
+            ◈ modo jogo (CEO 1998)
+          </Link>
+          <Link
             to="/runs/new"
-            className="font-mono text-sm uppercase tracking-widest px-6 py-3 border border-primary text-primary bg-primary/5 hover:bg-primary/15 transition-colors glow-cyan"
+            className="font-mono text-sm uppercase tracking-widest px-6 py-3 border border-primary text-primary bg-primary/5 hover:bg-primary/15 transition-colors"
           >
             ▶ iniciar nova simulação
           </Link>

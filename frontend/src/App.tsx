@@ -8,6 +8,7 @@ import NewRun from "./pages/NewRun";
 import TurnView from "./pages/TurnView";
 import Atlas from "./pages/Atlas";
 import Manual from "./pages/Manual";
+import Play from "./pages/Play";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -24,6 +25,7 @@ const App = () => (
           <Route path="/runs/:id" element={<TurnView />} />
           <Route path="/runs/:id/atlas" element={<Atlas />} />
           <Route path="/manual" element={<Manual />} />
+          <Route path="/play" element={<Play />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
