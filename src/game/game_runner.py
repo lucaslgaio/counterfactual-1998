@@ -76,10 +76,10 @@ logger = logging.getLogger(__name__)
 # prática o jogador ficar dead na turn 4 sem opção. Revisar com lucas.
 
 # accident_risk passivo por turno
-PASSIVE_RISK_PER_CAPABILITY_POINT = 0.005   # cada ponto acima de 92 (Claude 4-like)
-PASSIVE_RISK_PER_PENETRATION_POINT = 0.001  # cada % da população usando IA
-ALIGNMENT_CREDIT_RISK_DRAIN = 0.10          # cada unidade de credit drena risco
-CAPABILITY_BASELINE = 92.0                  # "Claude 4-like" — anchor do taxonomy
+PASSIVE_RISK_PER_CAPABILITY_POINT = 0.002    # cada ponto acima de 92 (Claude 4-like)
+PASSIVE_RISK_PER_PENETRATION_POINT = 0.0005  # cada % da população usando IA
+ALIGNMENT_CREDIT_RISK_DRAIN = 0.10           # cada unidade de credit drena risco
+CAPABILITY_BASELINE = 92.0                   # "Claude 4-like" — anchor do taxonomy
 
 # alignment_credit decay
 ALIGNMENT_CREDIT_DECAY_PER_TURN = 0.20      # 20%/turno
@@ -277,6 +277,7 @@ def submit_action(
             {"kind": e.kind,
              "accident_roll": e.accident_roll,
              "risk_at_trigger": e.risk_at_trigger,
+             "effective_threshold": e.effective_threshold,
              "narrative_seed": e.narrative_seed}
             for e in risk_events
         ],
@@ -501,10 +502,18 @@ def _accident_roll(seed: int, turn: int) -> float:
 
 @dataclass
 class RiskPoolEvent:
-    """Evento disparado pelos risk pools (accident ou scandal)."""
+    """Evento disparado pelos risk pools (accident ou scandal).
+
+    Para acidentes, expomos AMBOS o `accident_roll` (uniform [0,1)) e o
+    `effective_threshold` (= risk^2). Acidente dispara quando
+    `roll < effective_threshold`. O `risk_at_trigger` é o accident_risk cru
+    (pre-square) — útil pra UI/cronista contextualizar "estávamos em 30% de
+    risco quando o roll baixou".
+    """
     kind: str  # "accident" | "scandal"
     accident_roll: Optional[float] = None
     risk_at_trigger: Optional[float] = None
+    effective_threshold: Optional[float] = None
     narrative_seed: str = ""
 
 
@@ -542,9 +551,14 @@ def _resolve_risk_pools(
     delta = _passive_accident_risk_delta(engine_state, new.alignment_credit)
     new.accident_risk = new.accident_risk + delta
 
-    # 3. Accident roll
+    # 3. Accident roll — função QUADRÁTICA: P(acidente) = risk^2.
+    #    Risk 0.10 → 1% chance/turn; 0.30 → 9%; 0.60 → 36%; 0.90 → 81%.
+    #    Curva favorece estratégias conservadoras (risk baixo = quase zero
+    #    chance) e pune severamente acúmulo descontrolado.
     accident_roll = _accident_roll(seed, turn)
-    if new.accident_risk > 0 and accident_roll < new.accident_risk:
+    risk_now = float(new.accident_risk)
+    effective_threshold = risk_now * risk_now
+    if risk_now > 0 and accident_roll < effective_threshold:
         # ACIDENTE
         new.accidents_count += 1
         new.reputation += ACCIDENT_REPUTATION_PENALTY
@@ -556,7 +570,8 @@ def _resolve_risk_pools(
         events.append(RiskPoolEvent(
             kind="accident",
             accident_roll=accident_roll,
-            risk_at_trigger=float(new.accident_risk),
+            risk_at_trigger=risk_now,
+            effective_threshold=effective_threshold,
             narrative_seed=(
                 "ACIDENTE: um deploy do lab causou dano em larga escala — "
                 "imprensa em pânico, congresso convoca audiência, queda forte "

@@ -51,6 +51,7 @@ export interface RiskEvent {
   kind: "accident" | "scandal";
   accident_roll?: number | null;
   risk_at_trigger?: number | null;
+  effective_threshold?: number | null;  // = risk^2 (função de gatilho quadrática)
   narrative_seed: string;
 }
 

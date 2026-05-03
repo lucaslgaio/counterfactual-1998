@@ -92,7 +92,8 @@ function Body({ result }: { result: ActionResult }) {
                 {e.kind === "accident" ? "ACIDENTE GRAVE" : "SCANDAL EXPOSTO"}
                 {e.accident_roll !== null && e.accident_roll !== undefined && (
                   <span className="text-muted-foreground font-normal ml-2">
-                    (roll={fmtNum(e.accident_roll, 3)} vs risk={fmtNum(e.risk_at_trigger ?? 0, 2)})
+                    (roll={fmtNum(e.accident_roll, 3)} vs risk²={fmtNum(e.effective_threshold ?? 0, 3)},
+                    risk cru={fmtNum(e.risk_at_trigger ?? 0, 2)})
                   </span>
                 )}
               </div>

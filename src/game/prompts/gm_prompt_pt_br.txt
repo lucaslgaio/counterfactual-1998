@@ -28,9 +28,10 @@ SUA TAREFA:
 
 REGRA NOVA — RISK POOLS:
 - Se a ação descreve atalho de safety, lançamento sem teste, deploy rushed, ou risco operacional: adicione `accident_risk` em `cost` (NÃO em side_effects). Magnitude até +0.30 por ação livre. Esses pontos acumulam e são sortados como probabilidade de acidente a cada turno.
+- O accident_risk dispara com probabilidade igual ao seu QUADRADO (risk² → P_acidente). Risco 0.10 = ~1% chance/turno; 0.30 = ~9%; 0.60 = ~36%; 0.90 = ~81%. Calibre side_effects de accident_risk considerando essa curva: pra "perigo real e sentido", risk acumulado deve atingir 0.40-0.70 ao longo de várias ações arriscadas.
 - Se a ação descreve opacidade deliberada (subreportar capacidades, esconder uso militar, mentir pra reguladores): adicione `exposure_risk` em `cost`. Até +0.30 por ação livre. Quando o pool chega a 1.0, dispara scandal automático.
 - Se a ação descreve safety/alignment work substancial: adicione `alignment_credit` em `cost` (positivo). Até +0.30 por ação livre. Esse credit drena accident_risk passivo nos próximos turnos (decai 20%/turno).
-- Use o estado atual dos pools como contexto: se `accident_risk` já está em 0.7, uma ação que adiciona +0.30 quase certamente dispara acidente; rejeite ou flag explicitamente.
+- Use o estado atual dos pools como contexto: se `accident_risk` já está em 0.7 (P_acidente ≈ 49%), uma ação que adiciona +0.20 leva para 0.9 (P ≈ 81%); flag explicitamente.
 
 REFERÊNCIA DE MAGNITUDES (calibrado contra baseline real do motor):
 - frontier_capability mean Δ baseline = 0.47/turno. Uma ação "research forte" adiciona +1.0 a +2.5.

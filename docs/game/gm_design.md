@@ -151,7 +151,29 @@ Fonte de aumento:
   prompt).
 
 Trigger: a cada turn, roll determinístico `_accident_roll(seed, turn)` ∈ [0,1).
-Se `roll < accident_risk`, **acidente disparado**:
+A função de gatilho é **quadrática**: dispara se `roll < accident_risk²`.
+Tabela de probabilidades:
+
+| accident_risk | risk² (P_acidente/turno) |
+|---------------|--------------------------|
+| 0.05          | 0.25%                    |
+| 0.10          | 1.0%                     |
+| 0.20          | 4.0%                     |
+| 0.30          | 9.0%                     |
+| 0.40          | 16.0%                    |
+| 0.50          | 25.0%                    |
+| 0.60          | 36.0%                    |
+| 0.70          | 49.0%                    |
+| 0.80          | 64.0%                    |
+| 0.90          | 81.0%                    |
+
+A curvatura quadrática implementa "risco baixo é praticamente seguro, mas
+acúmulo descontrolado é catastrófico". Estratégias conservadoras
+(`accident_risk` < 0.15) raramente disparam mesmo em 10 turnos; estratégias
+agressivas (`rush_to_market` repetido empurra `accident_risk` pra 0.5+)
+tornam acidente quase certo.
+
+Quando dispara, **acidente** aplica:
 - `accidents_count += 1`
 - `media_trust += -10.0` (engine, via merge no user_input_deltas)
 - `reputation += -0.20`
@@ -213,8 +235,8 @@ rivais e amplia o lead.
 Constantes em `src/game/game_runner.py`:
 
 ```python
-PASSIVE_RISK_PER_CAPABILITY_POINT = 0.005
-PASSIVE_RISK_PER_PENETRATION_POINT = 0.001
+PASSIVE_RISK_PER_CAPABILITY_POINT = 0.002    # reduzido de 0.005 (validate ciclo 2)
+PASSIVE_RISK_PER_PENETRATION_POINT = 0.0005  # reduzido de 0.001 (validate ciclo 2)
 ALIGNMENT_CREDIT_RISK_DRAIN = 0.10
 ALIGNMENT_CREDIT_DECAY_PER_TURN = 0.20
 ACCIDENT_TRUST_PENALTY = -10.0
@@ -224,11 +246,11 @@ SCANDAL_TRUST_PENALTY = -8.0
 SCANDAL_REPUTATION_PENALTY = -0.50
 ```
 
-Calibrados em playtest mental — partidas terminam em ~6-10 turnos com a
-sequência [push×3, deploy×3, rush×2, alignment×2] (mata por acidente).
-Se na prática estiver muito letal (jogador dead em turn 4), reduzir
-`PASSIVE_RISK_PER_CAPABILITY_POINT` para `0.003`. Se muito fraco,
-aumentar para `0.008`.
+Validados via `validate_calibration.py` (4 estratégias contrastantes contra
+a API local): conservador ganha, suicida morre cedo, all_in morre por
+acúmulo. A combinação `risk²` (em vez de Bernoulli linear) + constantes
+passive reduzidas mata o problema do "estratégia conservadora morrendo
+em turn 10 a 4% de risk" identificado nos primeiros playtests.
 
 ## Determinismo e reprodutibilidade — limites
 
