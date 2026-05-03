@@ -47,6 +47,13 @@ export interface GMInterpretation {
 
 export type Outcome = "success" | "partial_failure" | "total_failure" | "rejected";
 
+export interface RiskEvent {
+  kind: "accident" | "scandal";
+  accident_roll?: number | null;
+  risk_at_trigger?: number | null;
+  narrative_seed: string;
+}
+
 export interface ActionResult {
   action_type: "canonical" | "free";
   raw_input: string;
@@ -57,12 +64,17 @@ export interface ActionResult {
   applied_player_deltas: Record<string, number>;
   clipped: boolean;
   clipped_fields: string[];
+  risk_events: RiskEvent[];
 }
 
 export interface PlayerState {
   lab_funds: number;
   accidents_count: number;
-  reputation: number;
+  reputation: number;            // signed [-1, +1]
+  accident_risk: number;         // [0, 1]
+  exposure_risk: number;         // [0, 1] (transientemente >1 antes do trigger)
+  alignment_credit: number;      // >= 0
+  lab_lead_over_rivals: number;  // frontier_capability.US − mean(EU,CN,RoW)
 }
 
 export interface TurnRecord {

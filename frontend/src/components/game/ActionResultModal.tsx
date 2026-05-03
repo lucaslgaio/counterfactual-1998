@@ -77,7 +77,28 @@ function Body({ result }: { result: ActionResult }) {
           <div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">
             deltas aplicados (lab)
           </div>
-          <DeltaList deltas={result.applied_player_deltas} />
+          <DeltaList deltas={result.applied_player_deltas} highlightRiskPools />
+        </div>
+      )}
+
+      {result.risk_events.length > 0 && (
+        <div className="border border-red bg-red/10 p-3 mt-2">
+          <div className="text-[11px] uppercase tracking-widest text-red font-bold">
+            ⚠ EVENTO DE RISK POOL
+          </div>
+          {result.risk_events.map((e, idx) => (
+            <div key={idx} className="text-xs text-foreground mt-2">
+              <div className="font-bold uppercase">
+                {e.kind === "accident" ? "ACIDENTE GRAVE" : "SCANDAL EXPOSTO"}
+                {e.accident_roll !== null && e.accident_roll !== undefined && (
+                  <span className="text-muted-foreground font-normal ml-2">
+                    (roll={fmtNum(e.accident_roll, 3)} vs risk={fmtNum(e.risk_at_trigger ?? 0, 2)})
+                  </span>
+                )}
+              </div>
+              <p className="font-serif italic mt-1">{e.narrative_seed}</p>
+            </div>
+          ))}
         </div>
       )}
 
@@ -128,21 +149,41 @@ function RollVisualization({ successP, roll }: { successP: number; roll: number 
   );
 }
 
-function DeltaList({ deltas }: { deltas: Record<string, number> }) {
+const RISK_POOL_FIELDS = new Set(["accident_risk", "exposure_risk", "alignment_credit"]);
+
+function DeltaList({
+  deltas,
+  highlightRiskPools = false,
+}: {
+  deltas: Record<string, number>;
+  highlightRiskPools?: boolean;
+}) {
   const entries = Object.entries(deltas).sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]));
   if (entries.length === 0) {
     return <div className="text-xs text-muted-foreground italic">nenhum delta aplicado</div>;
   }
   return (
     <ul className="space-y-1">
-      {entries.map(([k, v]) => (
-        <li key={k} className="flex justify-between text-xs border-b border-border/40 py-0.5">
-          <span className="text-foreground/80 truncate">{k}</span>
-          <span className={`tabular-nums ${v > 0 ? "text-green" : "text-red"}`}>
-            {fmtDelta(v, 3)}
-          </span>
-        </li>
-      ))}
+      {entries.map(([k, v]) => {
+        const isRisk = highlightRiskPools && RISK_POOL_FIELDS.has(k);
+        // Para alignment_credit, subir é bom para o jogador (debuff de risk).
+        // Para accident_risk e exposure_risk, subir é ruim.
+        const goodWhenUp = k === "alignment_credit" || (!isRisk && k !== "accident_risk" && k !== "exposure_risk");
+        const color = isRisk
+          ? (k === "alignment_credit" ? (v > 0 ? "text-green font-bold" : "text-red font-bold")
+                                       : (v > 0 ? "text-red font-bold" : "text-green font-bold"))
+          : (v > 0 ? "text-green" : "text-red");
+        // unused suppress
+        void goodWhenUp;
+        return (
+          <li key={k} className="flex justify-between text-xs border-b border-border/40 py-0.5">
+            <span className="text-foreground/80 truncate">
+              {isRisk && "▣ "}{k}
+            </span>
+            <span className={`tabular-nums ${color}`}>{fmtDelta(v, 3)}</span>
+          </li>
+        );
+      })}
     </ul>
   );
 }

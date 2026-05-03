@@ -6,6 +6,7 @@ import { ActionPanel } from "@/components/game/ActionPanel";
 import { ActionResultModal } from "@/components/game/ActionResultModal";
 import { ChronicleLog } from "@/components/game/ChronicleLog";
 import { MissionHeader } from "@/components/game/MissionHeader";
+import { RiskEventOverlay } from "@/components/game/RiskEventOverlay";
 import { StateDashboard } from "@/components/game/StateDashboard";
 import type {
   ActionResult,
@@ -13,6 +14,7 @@ import type {
   EngineState,
   GameState,
   PlayerState,
+  RiskEvent,
   SubmitActionRequest,
 } from "@/types/game";
 
@@ -23,6 +25,7 @@ export default function Play() {
 
   const [gameId, setGameId] = useState<string | null>(gameIdFromUrl);
   const [lastResult, setLastResult] = useState<ActionResult | null>(null);
+  const [pendingRiskEvent, setPendingRiskEvent] = useState<RiskEvent | null>(null);
   const [error, setError] = useState<string | null>(null);
   const prevEngineRef = useRef<EngineState | null>(null);
   const prevPlayerRef = useRef<PlayerState | null>(null);
@@ -74,6 +77,10 @@ export default function Play() {
         prevPlayerRef.current = current.player_state;
       }
       queryClient.setQueryData(["game_state", gameId], data.state);
+      // Se há risk event, mostra overlay primeiro; modal padrão sai depois.
+      if (data.action_result.risk_events.length > 0) {
+        setPendingRiskEvent(data.action_result.risk_events[0]);
+      }
       setLastResult(data.action_result);
       setError(null);
     },
@@ -123,7 +130,14 @@ export default function Play() {
         <FinalScreen state={state} />
       )}
 
-      <ActionResultModal result={lastResult} onClose={() => setLastResult(null)} />
+      <RiskEventOverlay
+        event={pendingRiskEvent}
+        onDismiss={() => setPendingRiskEvent(null)}
+      />
+      <ActionResultModal
+        result={pendingRiskEvent ? null : lastResult}
+        onClose={() => setLastResult(null)}
+      />
     </div>
   );
 }

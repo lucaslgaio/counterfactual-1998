@@ -6,18 +6,28 @@ Fluxo de submit_action:
      (success_p=1.0, classification fixa "research" como placeholder).
    - free: chama gm.interpret(prompt, ...) → GMInterpretation; clipa contra caps.
 2. Faz roll determinístico (success_p, seed, turn, action_hash).
-3. Calcula `applied_deltas` (engine) e `applied_player_deltas` conforme outcome.
-4. Aplica via Simulation.run_turn(user_input_deltas=applied_deltas).
-5. Atualiza player_state (cost da ação + accident).
-6. Cronista narra o turno (passa narrative_seed do GM como user_input).
-7. Avalia win/lose conditions; atualiza status.
-8. Retorna (new_state, action_result).
+3. Calcula `applied_engine_deltas` (motor) e `applied_player_deltas` conforme
+   outcome (success / partial / total / rejected).
+4. Aplica `applied_player_deltas` no PlayerState (custo da ação).
+5. Atualiza risk pools:
+   - passive accident_risk: cresce com capability acima de 92 + penetração;
+     drena via alignment_credit
+   - decay alignment_credit (20%/turno)
+   - roll determinístico de acidente (seed, turn, "accident_check")
+   - check exposure_risk >= 1.0 → scandal automático
+   - acidentes/scandals geram penalidades extras (player + engine), zeram pools
+6. Roda 1 turno do motor com `applied_engine_deltas + risk_engine_penalties`.
+7. Computa lab_lead_over_rivals do novo engine_state, snapshota em PlayerState.
+8. Cronista narra o turno.
+9. Avalia win/lose conditions; atualiza status.
+10. Retorna (new_state, action_result).
 
 Determinismo: dada (seed, mission, sequence_of_actions), o resultado é
-reproduzível. Roll, motor, cronista — todos seedados.
+reproduzível. Roll de outcome, roll de acidente, motor, cronista — tudo seedado.
 """
 from __future__ import annotations
 
+import hashlib
 import logging
 import uuid
 from dataclasses import dataclass
@@ -58,6 +68,30 @@ from src.game.models import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+# ---------------------------------------------------------------------------- risk pool calibração
+#
+# Parâmetros conservadores. Calibrados em playtest mental — ajustar se na
+# prática o jogador ficar dead na turn 4 sem opção. Revisar com lucas.
+
+# accident_risk passivo por turno
+PASSIVE_RISK_PER_CAPABILITY_POINT = 0.005   # cada ponto acima de 92 (Claude 4-like)
+PASSIVE_RISK_PER_PENETRATION_POINT = 0.001  # cada % da população usando IA
+ALIGNMENT_CREDIT_RISK_DRAIN = 0.10          # cada unidade de credit drena risco
+CAPABILITY_BASELINE = 92.0                  # "Claude 4-like" — anchor do taxonomy
+
+# alignment_credit decay
+ALIGNMENT_CREDIT_DECAY_PER_TURN = 0.20      # 20%/turno
+
+# Penalidades de acidente catastrófico (aplicadas quando roll dispara)
+ACCIDENT_TRUST_PENALTY = -10.0              # delta engine (media_trust)
+ACCIDENT_REPUTATION_PENALTY = -0.20         # delta player (reputation)
+ACCIDENT_LAB_FUNDS_PENALTY = -0.30          # delta player (lab_funds)
+
+# Penalidades de scandal (exposure_risk >= 1.0)
+SCANDAL_TRUST_PENALTY = -8.0                # delta engine (media_trust)
+SCANDAL_REPUTATION_PENALTY = -0.50          # delta player (reputation)
 
 
 # ---------------------------------------------------------------------------- engine context (cached)
@@ -104,17 +138,22 @@ def start_game(
     """Cria nova partida no estado inicial 1998-S1.
 
     `engine_state` armazena WorldState.to_json(); `player_state` começa
-    no default do PlayerState (lab_funds=1.0, accidents=0, reputation=0.5).
+    nos defaults do PlayerState (lab_funds=1.0, accidents=0, reputation=0.0,
+    risk pools zerados) — exceto `lab_lead_over_rivals`, computado a partir
+    do estado inicial do motor.
     """
     mission = mission or MISSION_AGI_ALIGNED
     initial = WorldState.from_initial_spec()
+    initial_player = PlayerState(
+        lab_lead_over_rivals=compute_lab_lead(initial),
+    )
     return GameState(
         game_id=game_id or uuid.uuid4().hex[:12],
         seed=seed,
         mission=mission,
         current_turn=0,
         engine_state=initial.to_json(),
-        player_state=PlayerState(),
+        player_state=initial_player,
         history=[],
         status="in_progress",
     )
@@ -170,7 +209,28 @@ def submit_action(
         interpretation, outcome
     )
 
-    # 4. Roda 1 turno do motor com applied_engine_deltas como user_input
+    # 4. Aplica cost da ação no PlayerState (inclui adições aos risk pools
+    #    via cost.accident_risk / cost.exposure_risk / cost.alignment_credit).
+    #    Não clipa risk pools — fica para _resolve_risk_pools depois.
+    player_state_post_cost = _apply_player_deltas(
+        state.player_state, applied_player_deltas, interpretation, outcome
+    )
+
+    # 5. Resolve risk pools (passive risk, decay, accident roll, scandal check).
+    #    Pode disparar acidente ou scandal — gera penalties para o motor.
+    new_player_state, risk_engine_penalties, risk_events = _resolve_risk_pools(
+        ps=player_state_post_cost,
+        engine_state=state_before,  # estado conhecido ANTES desta turn
+        seed=state.seed,
+        turn=turn,
+    )
+
+    # 6. Merge as penalidades de risco no user_input_deltas que vai pro motor
+    merged_engine_deltas = dict(applied_engine_deltas)
+    for k, v in risk_engine_penalties.items():
+        merged_engine_deltas[k] = merged_engine_deltas.get(k, 0.0) + v
+
+    # 7. Roda 1 turno do motor com user_input_deltas combinados
     rng = _seedrng_for_turn(state.seed, turn)
     turn_result: TurnResult = run_turn(
         state=state_before,
@@ -178,26 +238,29 @@ def submit_action(
         spec=ctx.spec,
         ranges=ctx.ranges,
         rng=rng,
-        user_input_deltas=applied_engine_deltas,
+        user_input_deltas=merged_engine_deltas,
     )
 
-    # 5. Atualiza player_state (custo + accident)
-    new_player_state = _apply_player_deltas(
-        state.player_state, applied_player_deltas, interpretation, outcome
-    )
+    # 8. Atualiza lab_lead_over_rivals (snapshot do novo engine_state)
+    new_player_state.lab_lead_over_rivals = compute_lab_lead(turn_result.state_after)
 
-    # 6. Narrativa do cronista (se sessão fornecida)
+    # 9. Narrativa do cronista (se sessão fornecida) — usa narrative_seed do
+    #    risk_event (accident/scandal) se houver, senão da ação
+    narrative_seed = (
+        risk_events[0].narrative_seed if risk_events else interpretation.narrative_seed
+    )
     chronicle_text = _maybe_chronicle(
         chronicler_session, turn_result, state_before,
         turn_result.state_after, interpretation,
+        narrative_seed_override=narrative_seed if risk_events else None,
     )
 
-    # 7. Avalia win/lose
+    # 10. Avalia win/lose
     new_status, final_chronicle = _evaluate_status(
         state.mission, turn_result.state_after, new_player_state, turn + 1
     )
 
-    # 8. Monta TurnRecord e novo GameState
+    # 11. Monta TurnRecord e novo GameState
     engine_delta_summary = _summarize_top_deltas(turn_result, n=8)
 
     action_result = ActionResult(
@@ -206,10 +269,17 @@ def submit_action(
         interpretation=interpretation,
         roll=roll,
         outcome=outcome,
-        applied_deltas=applied_engine_deltas,
+        applied_deltas=merged_engine_deltas,
         applied_player_deltas=applied_player_deltas,
         clipped=bool(clipped_fields),
         clipped_fields=clipped_fields,
+        risk_events=[
+            {"kind": e.kind,
+             "accident_roll": e.accident_roll,
+             "risk_at_trigger": e.risk_at_trigger,
+             "narrative_seed": e.narrative_seed}
+            for e in risk_events
+        ],
     )
     # turn_label = semestre QUE FOI JOGADO (= state_before). state_after já é
     # o semestre seguinte. Cronista narra o semestre jogado.
@@ -346,27 +416,179 @@ def _apply_player_deltas(
     interp: GMInterpretation,
     outcome: str,
 ) -> PlayerState:
-    """Aplica deltas em PlayerState e incrementa accidents se aplicável.
+    """Aplica deltas (cost da ação) em PlayerState e incrementa accidents se aplicável.
 
-    Triggers de accident:
-    - interp.triggers_accident=True E outcome != "success" → accident
-    - interp.triggers_accident=True E outcome == "success" → narrow miss (sem accident)
-    Lógica conservadora: ação arriscada bem-sucedida não causa accident; ação
-    arriscada que falha sim. Em total_failure de ação arriscada, sempre accident.
+    Triggers de accident IMEDIATO (interp.triggers_accident, GM-LLM dirige):
+    - triggers_accident=True E outcome != "success" → accident imediato
+    - triggers_accident=True E outcome == "success" → narrow miss (sem accident)
+
+    Esta função NÃO faz roll de risk pool — isso é separado em
+    `_resolve_risk_pools()`. Aqui é só aplicação de cost + accident IMEDIATO
+    do GM (back-compat).
+
+    NÃO clipa accident_risk/exposure_risk nesta etapa — clipping fica para
+    `_resolve_risk_pools` depois de avaliar triggers.
     """
     new = ps.model_copy()
     for k, v in deltas.items():
         if hasattr(new, k):
             setattr(new, k, getattr(new, k) + float(v))
 
-    # accident logic
+    # immediate accident from GM (back-compat path)
     if interp.triggers_accident and outcome in ("partial_failure", "total_failure"):
         new.accidents_count += 1
 
-    # clamp player_state em ranges sensatos
+    # Clamps preservativos (lab_funds não-negativo; reputation [-1, +1];
+    # alignment_credit não-negativo). NÃO clipa risk pools — deixa pro resolver.
     new.lab_funds = max(0.0, new.lab_funds)
-    new.reputation = max(0.0, min(1.0, new.reputation))
+    new.reputation = max(-1.0, min(1.0, new.reputation))
+    new.alignment_credit = max(0.0, new.alignment_credit)
     return new
+
+
+# ---------------------------------------------------------------------------- helpers — risk pools
+
+
+def compute_lab_lead(engine_state: WorldState) -> float:
+    """frontier_capability.US − mean(EU, CN, RoW). Snapshot de liderança do lab.
+
+    Métrica derivada — não armazenada no engine, recomputada a cada turno e
+    snapshotada em PlayerState.lab_lead_over_rivals para que win/lose
+    conditions com scope='player' possam testá-la sem precisar de acesso
+    direto ao engine_state.
+    """
+    fc = engine_state.block_metrics.get("ai_capability.frontier_capability", {})
+    us = float(fc.get("US", 0.0))
+    rivals = [float(fc.get(b, 0.0)) for b in ("EU", "CN", "RoW")]
+    if not rivals:
+        return 0.0
+    return us - sum(rivals) / len(rivals)
+
+
+def _passive_accident_risk_delta(engine_state: WorldState, alignment_credit: float) -> float:
+    """Δ accident_risk passivo por turno.
+
+    Cresce com:
+    - capability acima do baseline (Claude-4-like ≡ 92): cada ponto adiciona
+    - penetração da população (mais usuários = mais superfície de ataque)
+    Drena com:
+    - alignment_credit (drain proporcional)
+    """
+    fc = engine_state.block_metrics.get("ai_capability.frontier_capability", {})
+    pp = engine_state.block_metrics.get("ai_capability.population_penetration", {})
+    capability_us = float(fc.get("US", 0.0))
+    penetration_us = float(pp.get("US", 0.0))
+
+    risk_up = (
+        max(0.0, capability_us - CAPABILITY_BASELINE) * PASSIVE_RISK_PER_CAPABILITY_POINT
+        + penetration_us * PASSIVE_RISK_PER_PENETRATION_POINT
+    )
+    risk_down = alignment_credit * ALIGNMENT_CREDIT_RISK_DRAIN
+    return risk_up - risk_down
+
+
+def _accident_roll(seed: int, turn: int) -> float:
+    """Roll determinístico [0, 1) específico para checagem de acidente.
+
+    Distinto de `roll_outcome` (que usa action_hash); aqui o sufixo
+    'accident_check' garante que o roll de acidente NÃO colide com o roll
+    de outcome da ação no mesmo turno.
+    """
+    combined = f"{seed}:{turn}:accident_check".encode("utf-8")
+    rng_seed = int(hashlib.sha256(combined).hexdigest()[:8], 16)
+    return float(np.random.default_rng(rng_seed).random())
+
+
+@dataclass
+class RiskPoolEvent:
+    """Evento disparado pelos risk pools (accident ou scandal)."""
+    kind: str  # "accident" | "scandal"
+    accident_roll: Optional[float] = None
+    risk_at_trigger: Optional[float] = None
+    narrative_seed: str = ""
+
+
+def _resolve_risk_pools(
+    ps: PlayerState,
+    engine_state: WorldState,
+    seed: int,
+    turn: int,
+) -> Tuple[PlayerState, Dict[str, float], List[RiskPoolEvent]]:
+    """Roda passive_risk + decay + accident roll + exposure check.
+
+    Recebe o PlayerState JÁ COM o cost da ação aplicado. Retorna:
+    - new_player_state com risk pools atualizados (e clipados)
+    - dict de penalidades para o motor (a ser MERGED em user_input_deltas)
+    - lista de eventos disparados (accident, scandal) para narrativa
+
+    Order:
+      1. Decay alignment_credit (20%) — usa o credit JÁ atual (após aplicação
+         do cost desta ação), o que beneficia o jogador no MESMO turno em que
+         invest_alignment é feito.
+      2. Passive risk delta usando engine_state ANTES do turno (estado
+         conhecido) e alignment_credit DEPOIS do decay desta turn.
+      3. Accident roll: se < accident_risk → accident, reseta pool.
+      4. Exposure check: se >= 1.0 → scandal, reseta pool.
+      5. Clamp final dos pools em [0, 1].
+    """
+    new = ps.model_copy()
+    engine_penalties: Dict[str, float] = {}
+    events: List[RiskPoolEvent] = []
+
+    # 1. Decay alignment_credit
+    new.alignment_credit = max(0.0, new.alignment_credit * (1.0 - ALIGNMENT_CREDIT_DECAY_PER_TURN))
+
+    # 2. Passive risk
+    delta = _passive_accident_risk_delta(engine_state, new.alignment_credit)
+    new.accident_risk = new.accident_risk + delta
+
+    # 3. Accident roll
+    accident_roll = _accident_roll(seed, turn)
+    if new.accident_risk > 0 and accident_roll < new.accident_risk:
+        # ACIDENTE
+        new.accidents_count += 1
+        new.reputation += ACCIDENT_REPUTATION_PENALTY
+        new.lab_funds += ACCIDENT_LAB_FUNDS_PENALTY
+        engine_penalties["information_ecosystem.media_trust"] = (
+            engine_penalties.get("information_ecosystem.media_trust", 0.0)
+            + ACCIDENT_TRUST_PENALTY
+        )
+        events.append(RiskPoolEvent(
+            kind="accident",
+            accident_roll=accident_roll,
+            risk_at_trigger=float(new.accident_risk),
+            narrative_seed=(
+                "ACIDENTE: um deploy do lab causou dano em larga escala — "
+                "imprensa em pânico, congresso convoca audiência, queda forte "
+                "de confiança em IA em todos os blocos."
+            ),
+        ))
+        new.accident_risk = 0.0  # reseta pool
+
+    # 4. Exposure check (scandal)
+    if new.exposure_risk >= 1.0:
+        new.reputation += SCANDAL_REPUTATION_PENALTY
+        engine_penalties["information_ecosystem.media_trust"] = (
+            engine_penalties.get("information_ecosystem.media_trust", 0.0)
+            + SCANDAL_TRUST_PENALTY
+        )
+        events.append(RiskPoolEvent(
+            kind="scandal",
+            narrative_seed=(
+                "EXPOSED: imprensa investigativa documentou que o lab "
+                "subreportava sistematicamente capacidade real dos modelos. "
+                "Reputação em queda livre."
+            ),
+        ))
+        new.exposure_risk = 0.0
+
+    # 5. Clamp final
+    new.lab_funds = max(0.0, new.lab_funds)
+    new.reputation = max(-1.0, min(1.0, new.reputation))
+    new.accident_risk = max(0.0, min(1.0, new.accident_risk))
+    new.exposure_risk = max(0.0, min(1.0, new.exposure_risk))
+    new.alignment_credit = max(0.0, new.alignment_credit)
+    return new, engine_penalties, events
 
 
 # ---------------------------------------------------------------------------- helpers — engine
@@ -442,21 +664,28 @@ def _maybe_chronicle(
     state_before: WorldState,
     state_after: WorldState,
     interp: GMInterpretation,
+    *,
+    narrative_seed_override: Optional[str] = None,
 ) -> str:
-    """Se sessão de cronista disponível, narra; senão, fallback ao narrative_seed."""
+    """Se sessão de cronista disponível, narra; senão, fallback ao narrative_seed.
+
+    `narrative_seed_override` (se setado) substitui o seed da ação. Útil para
+    risk pool events (accident, scandal) que precisam dominar a narrativa.
+    """
+    seed_text = narrative_seed_override or interp.narrative_seed
     if session is None:
-        return interp.narrative_seed or "(narrativa não disponível neste turno)"
+        return seed_text or "(narrativa não disponível neste turno)"
     try:
         out = session.chronicle_turn(
             turn_result=turn_result,
             state_before=state_before,
             state_after=state_after,
-            user_input=interp.narrative_seed or None,
+            user_input=seed_text or None,
         )
         return out.narrative
     except Exception as exc:  # noqa: BLE001
         logger.warning("cronista falhou no turno %d: %s", turn_result.turn_index, exc)
-        return interp.narrative_seed or f"(cronista falhou: {exc})"
+        return seed_text or f"(cronista falhou: {exc})"
 
 
 # ---------------------------------------------------------------------------- win/lose evaluation
